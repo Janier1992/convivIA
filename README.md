@@ -1,11 +1,10 @@
-# Reservas AI — SaaS multi-tenant de agentes de reservas
+# ConvivIA — SaaS de administración de conjuntos residenciales
 
-Plataforma SaaS multi-tenant para negocios que trabajan con reservas o turnos (restaurantes, barberías,
-peluquerías/salones de belleza, spas, consultorios odontológicos y médicos, fisioterapia, veterinarias, talleres
-mecánicos, academias, gimnasios, estudios, etc.). Cada negocio configura su
-propio agente de IA, que atiende a sus clientes por **Telegram** (canal recomendado, gratuito) o **WhatsApp**,
-consulta disponibilidad real contra la agenda del negocio y crea, cancela o reprograma reservas — sincronizando
-automáticamente con **Google Calendar**, tanto el del negocio como una invitación al propio calendario del cliente.
+Plataforma SaaS multi-tenant para **administraciones de propiedad horizontal en Colombia** (conjuntos
+residenciales, edificios y condominios). Cada copropiedad tiene su propio **asistente de IA**, que atiende a los
+residentes por **Telegram** (canal recomendado, gratuito) o **WhatsApp**, y reemplaza el trabajo manual típico de
+una administración: consultar saldo, reportar un pago, radicar un PQRS o reservar una zona común, todo por chat y
+sin llamadas repetitivas al portero o al administrador.
 
 Es una PWA (Progressive Web App): se puede instalar como app en el celular (Android/iOS) o en escritorio, y toda la
 interfaz es responsiva.
@@ -20,13 +19,11 @@ interfaz es responsiva.
 - [Requisitos](#requisitos)
 - [Instalación](#instalación)
 - [Configurar InsForge (base de datos + auth)](#configurar-insforge-base-de-datos--auth)
-- [Configurar OpenAI (agente de IA)](#configurar-openai-agente-de-ia)
+- [Configurar OpenAI (asistente de IA)](#configurar-openai-asistente-de-ia)
 - [Configurar Telegram (canal recomendado, gratis)](#configurar-telegram-canal-recomendado-gratis)
 - [Configurar WhatsApp / Twilio (opcional, con costo)](#configurar-whatsapp--twilio-opcional-con-costo)
-- [Configurar Google Calendar](#configurar-google-calendar)
-- [Moneda y localización](#moneda-y-localización)
-- [PWA — instalación en celular/escritorio](#pwa--instalación-en-celularescritorio)
 - [Notificaciones push](#notificaciones-push)
+- [Suscripción de la copropiedad (billing de la plataforma)](#suscripción-de-la-copropiedad-billing-de-la-plataforma)
 - [Desarrollo local](#desarrollo-local)
 - [Tests](#tests)
 - [Build y producción](#build-y-producción)
@@ -38,92 +35,123 @@ interfaz es responsiva.
 ## Funcionalidades
 
 ### Onboarding
-Wizard de 10 pasos: nombre y tipo de negocio, zona horaria, datos de contacto, horarios de atención, catálogo de
-servicios (con precio, moneda y duración), recursos (mesas/personal/consultorios), configuración del agente de IA, y
-conexión de canales — todo antes de llegar al dashboard.
+Registro de la copropiedad (nombre, tipo — conjunto residencial / edificio / condominio —, ciudad, zona horaria) y
+alta automática del administrador como **titular de la cuenta** (owner), antes de llegar al dashboard.
 
-### Agente de IA (por negocio, 100% configurable)
-- Responde en el idioma y tono configurados (formal / casual / amable), con instrucciones y reglas propias por
-  negocio.
-- Nunca inventa horarios, precios ni servicios: todo lo que dice sale de datos reales (`consultar_disponibilidad`,
-  `consultar_servicios`, `obtener_info_negocio`).
-- Pide confirmación explícita del cliente antes de reservar, cancelar o reprogramar.
-- Resuelve `service_id`/`resource_id` reales (nunca los inventa) cuando el negocio tiene catálogo configurado.
-- Si el negocio conectó Google Calendar, ofrece pedirle el email al cliente (opcional) para invitarlo al turno en su
-  propio calendario, y le recuerda que acepte la invitación por correo.
-- Vista previa de conversación desde el dashboard, sin crear reservas reales, para probar tono/instrucciones.
+### Unidades y residentes
+- Unidades (apartamentos, casas, locales, parqueaderos, depósitos) con su coeficiente de copropiedad, agrupadas por
+  torre/bloque.
+- **Generación masiva por pisos** (torres × pisos × unidades por piso) o **importación del censo desde Excel**, con
+  vista previa de filas válidas/erróneas antes de confirmar e historial de importaciones.
+- Censo de personas (propietarios, arrendatarios, familiares) vinculadas a sus unidades, con o sin canal conectado
+  al asistente.
+
+### Finanzas (cuotas, cartera y pagos)
+- Conceptos de cobro configurables y liquidación masiva de cuotas por lote (`charge_batches`).
+- **Cartera por unidad**, calculada en la base de datos (nunca por la IA) con antigüedad de saldos (por vencer, 1-30,
+  31-60, 61-90, +90 días) y aplicación FIFO de pagos.
+- Cargos manuales, intereses de mora configurables y anulación de cargos (nunca se borran: quedan auditados).
+- **Pagos reportados por los residentes desde el chat** (el asistente les explica cómo pagar y reciben el soporte),
+  con cola de revisión para el equipo (confirmar/rechazar/reversar) — nunca se confirman solos por lo que diga el
+  residente.
+
+### PQRS
+Peticiones, quejas, reclamos y sugerencias con número de radicado, categorías configurables, SLA y trazabilidad
+completa del historial — reemplaza las quejas informales sin seguimiento.
+
+### Zonas comunes y reservas
+Configuración de zonas comunes (salón social, piscina, gimnasio, etc.) con horarios, aforo y tarifas, y reservas
+creadas por el equipo o por los propios residentes vía el asistente — con prevención de choques de horario a nivel
+de base de datos.
+
+### Comunicados
+Se entregan **como mensaje privado por el chat de cada persona, nunca como lista pública o grupo**, con ayuda
+opcional de la IA para redactarlos.
+
+### Documentos (base para el asistente)
+Reglamento de propiedad horizontal, manual de convivencia, actas y demás documentos con visibilidad configurable
+(público / residentes / staff). El asistente los indexa y puede **citar la fuente** al responder preguntas del
+reglamento (búsqueda de texto completo en español sobre Postgres).
+
+### Asistente de IA (por copropiedad, 100% configurable)
+- Nombre y tono propios (ej. formal, amable-tuteo), instrucciones personalizadas y reglas adicionales de la
+  copropiedad — siempre después de las reglas críticas del sistema, que nunca se pueden desactivar ni contradecir.
+- Capacidades activables/desactivables una por una: consultar estado de cuenta, reportar pagos, radicar/consultar
+  PQRS, reservar zonas comunes, buscar en documentos, transferir a una persona del equipo.
+- **Nunca ejecuta una acción directamente**: primero la propone (validada de forma determinística contra los datos
+  reales) y sólo la ejecuta si el residente la confirma explícitamente en un mensaje posterior — protege contra que
+  el modelo "alucine" un pago, una reserva o un PQRS que nunca pidieron.
+- Identifica al residente por el canal (número de WhatsApp o `request_contact` verificado de Telegram) cruzado
+  contra el censo — nunca confía en lo que el modelo diga sobre quién es el usuario.
+- Simulador de conversación en el propio dashboard, sin crear datos reales, para probar tono/instrucciones antes de
+  publicarlas.
 
 ### Canales de mensajería
-- **Telegram** (recomendado): cada negocio conecta su propio bot (gratis, vía [@BotFather](https://t.me/BotFather)).
-  El compute service lo atiende con *long-polling*, sin necesitar dominio ni URL pública.
-- **WhatsApp vía Twilio** (opcional, tiene costo de Twilio/Meta): webhook entrante validado por firma.
+- **Telegram** (recomendado): cada copropiedad conecta su propio bot (gratis, vía
+  [@BotFather](https://t.me/BotFather)). El compute service lo atiende con *long-polling*, sin necesitar dominio ni
+  URL pública.
+- **WhatsApp vía Twilio** (opcional, tiene costo de Twilio/Meta): webhook entrante validado por firma, con manejo de
+  la ventana de 24h de mensajes gratuitos de Meta (usa plantillas pre-aprobadas fuera de esa ventana).
 
-### Reservas
-- Vista de lista con filtro por estado, creación manual desde el dashboard (con selección de servicio/recurso,
-  email opcional del cliente) o automática vía el agente.
-- Prevención de doble reserva a nivel de base de datos (no solo en la app).
-- Acciones por estado: completar, marcar no-show, cancelar, y eliminar (una vez cancelada/completada) para mantener
-  la lista limpia.
+### Conversaciones (inbox)
+Historial de conversaciones por canal, con intervención manual del equipo cuando el asistente transfiere o el
+residente lo pide explícitamente.
 
-### Servicios y recursos
-- Alta manual, edición inline (nombre, duración, precio, moneda) y baja.
-- **Carga masiva por Excel (.xlsx)**: botón "Carga masiva" en Servicios, con plantilla descargable, vista previa de
-  filas válidas/erróneas antes de confirmar, y detección de encabezados sin importar tildes/mayúsculas.
-- Sin flechitas de incremento/decremento en los campos numéricos — el usuario tipea el valor directamente.
+### Equipo y permisos (RBAC granular)
+- Titular de la cuenta (owner, acceso total) más roles invitables: `admin`, `assistant`, `accountant`, `council`
+  (consejo de administración) y `auditor` — cada uno con permisos finos por módulo (ej. un `accountant` puede ver
+  cartera pero no modificarla), no solo un rol de texto.
+- Invitar por email, cambiar roles, revocar acceso. La copropiedad siempre conserva al menos un titular.
 
-### Clientes
-- Búsqueda por nombre/teléfono, historial de reservas por cliente.
-- Nombre, email y notas editables directamente desde el dashboard (el email es el que se usa para invitarlo a
-  Google Calendar).
-- Eliminar cliente (rol admin/owner).
+### Auditoría
+Quién cambió qué, cuándo y con qué valores antes/después — registrado por triggers de base de datos, nunca depende
+de texto generado por IA. Excluye credenciales y el texto completo de documentos.
 
-### Inbox
-- Conversaciones por canal con historial de mensajes e info del cliente (reservas recientes), respuesta manual
-  desde el dashboard cuando hace falta intervención humana.
-- En mobile, la vista de 3 columnas se adapta a navegación por paneles (lista → hilo, con info del cliente en un
-  diálogo).
-
-### Integraciones
-- Telegram, WhatsApp (Twilio) y Google Calendar, cada una conectada/desconectada por organización desde
-  `/dashboard/integrations`, con credenciales aisladas por tenant.
-
-### Equipo
-- Invitar usuarios por email con rol `admin` o `staff`, cambiar roles, revocar acceso. La organización siempre
-  conserva al menos un `owner`.
+### Suscripción de la plataforma
+Cobro manual (comprobante de Nequi subido por la copropiedad) mientras no hay pasarela automática, con cola de
+revisión para el equipo interno de soporte (`/support`, rol separado de los administradores de copropiedades).
 
 ### Notificaciones push
-- El negocio recibe una notificación con sonido en el celular apenas el agente confirma una reserva por
-  Telegram/WhatsApp, sin necesidad de tener la app abierta. Se activan desde **Configuración**, por dispositivo.
-
-### Configuración del negocio
-- Datos de contacto, moneda (COP por defecto, cualquier otra editable), duración/intervalo de turnos, capacidad,
-  anticipación mínima/máxima, política de cancelación, horarios por día.
+El equipo recibe una notificación con sonido en el celular cuando un residente reporta un pago, radica un PQRS o
+reserva una zona común por chat — sin necesidad de tener la app abierta. Se activan desde **Configuración**, por
+dispositivo.
 
 ### Multi-tenant y seguridad
-- Aislamiento estricto por organización con Row Level Security de PostgreSQL, no con filtros en el código de la
-  aplicación.
+Aislamiento estricto por copropiedad (`organization_id`) con Row Level Security de PostgreSQL, no con filtros en el
+código de la aplicación — verificado con tests automatizados (ver [Tests](#tests)).
 
 ---
 
 ## Arquitectura
 
 ```text
-User → Organization → Business Profile → Agent → Channels → Customers → Conversations → Messages → Reservations → Integrations
+Organización (copropiedad) → Unidades/Residentes → Cargos/Cartera → Pagos → PQRS → Zonas comunes/Reservas
+→ Comunicados → Documentos (RAG) → Conversaciones (Telegram/WhatsApp) → Asistente IA → Auditoría
 ```
 
-Backend: **[InsForge](https://insforge.dev)** (PostgreSQL + Auth + Data API, gestionado con `@insforge/cli` y
-`@insforge/sdk`).
+Backend: **[InsForge](https://insforge.dev)** (PostgreSQL + Auth + Storage + Data API, gestionado con
+`@insforge/cli` y `@insforge/sdk`).
 
 - **Multi-tenant desde el modelo de datos**: todo dato relevante cuelga de `organization_id`, y el aislamiento se
-  garantiza con **Row Level Security** de PostgreSQL.
-- **Prevención de doble reserva** a nivel de base de datos con un `EXCLUDE` constraint (`btree_gist`) sobre
-  `(organization_id, resource_id, tstzrange(start_at, end_at))`, más locks de asesoría (`pg_advisory_xact_lock`)
-  para el caso de capacidad total sin recursos individuales.
-- **Agente genérico**: el prompt se arma en runtime a partir de `business_profiles`, `services`, `resources`,
-  `business_hour_periods`, `agents`, `agent_rules` y el estado de la integración de Google Calendar. El motor de
-  reservas es el mismo para todos los rubros; lo único específico por rubro es una guía opcional para el agente
-  (`server/src/services/agent/businessTypes.ts`: qué datos anotar y límites de seguridad, como no dar diagnósticos)
-  y las plantillas de servicios del onboarding (`app/src/lib/businessTypes.ts`).
+  garantiza con **Row Level Security** de PostgreSQL, no con filtros del backend.
+- **RBAC granular**: los permisos viven en una tabla (`role_permissions`), no hardcodeados por nombre de rol —
+  se consultan con `has_org_permission()` / `get_my_permissions()`.
+- **Patrón "proponer → confirmar"**: el asistente nunca ejecuta un cambio de estado directamente; primero llama a
+  una herramienta `proponer_*` (valida contra datos reales y guarda un resumen generado por el servidor, nunca por
+  el modelo) y sólo ejecuta con `confirmar_accion`, que exige un mensaje del residente posterior a la propuesta.
+- **Identidad verificada sin depender del LLM**: número de WhatsApp autenticado por el canal, o `request_contact`
+  de Telegram verificado contra `contact.user_id === from.id`, cruzado contra el censo (`persons`).
+- **Exposición mínima de herramientas**: la lista de herramientas que ve el modelo se filtra ANTES de llamarlo, por
+  identidad verificada + capacidades habilitadas por la copropiedad; `executeTool()` revalida contra esa misma
+  lista filtrada.
+- **Outbox pattern**: toda salida (respuestas del staff, comunicados, recordatorios de pago, novedades de PQRS)
+  pasa por `outbound_messages`, reclamada con `claim_outbound_messages()` (`SKIP LOCKED`) y entregada por un
+  worker que respeta la ventana de 24h de WhatsApp.
+- **Cola de trabajos en background** (`background_jobs`, `claim_background_jobs()` con `SKIP LOCKED` y
+  recuperación de trabajos atascados) para ingesta de documentos y turnos del asistente que no deben bloquear la
+  respuesta al canal.
+- **RAG con búsqueda de texto completo de Postgres** (no requiere un vector store aparte): `document_chunks.tsv`
+  en español, rankeado con `ts_rank_cd`, respetando visibilidad del documento y el flag `ai_enabled`.
 
 ### Por qué hay tres lugares donde vive "backend"
 
@@ -135,20 +163,20 @@ arquitectura:
 
 | Dónde | Qué vive ahí | Por qué |
 |---|---|---|
-| **Postgres (migraciones)** | Tablas, RLS, triggers, RPCs (`book_reservation`, `create_organization_with_owner`, `accept_organization_invite`, etc.) | El frontend llama estas RPCs directamente vía `insforge.database.rpc()` — el SDK adjunta el token automáticamente porque es una llamada al propio backend de InsForge. |
-| **`functions/` (Edge Functions, Deno, desplegadas con `@insforge/cli functions deploy`)** | `agent-preview`, `check-availability`, `twilio-connect`, `twilio-disconnect`, `telegram-connect`, `telegram-disconnect`, `google-oauth-start`, `google-disconnect`, `conversations-reply` | Lógica privilegiada que el **frontend** dispara (necesita el token del usuario + una API key admin para tocar `integrations.credentials`, bloqueada por columna para `authenticated`). |
-| **`server/` (compute service, Node/Express persistente)** | Webhook de Twilio, callback de Google OAuth, el long-polling de cada bot de Telegram conectado, el loop de tool-calling del agente | Twilio y Google llaman directo (no el frontend vía SDK); Telegram no llama a nadie (long-polling saliente), pero igual necesita un proceso persistente corriendo. El agente necesita poder seguir procesando en background — algo que una función serverless de vida corta no garantiza. |
+| **Postgres (migraciones)** | Tablas, RLS, triggers, RPCs (`propose_*`, `confirm_action`, `get_admin_dashboard`, `ledger_open_items`, `get_portfolio`, `search_document_chunks`, etc.) | El frontend llama estas RPCs directamente vía `insforge.database.rpc()` — el SDK adjunta el token automáticamente porque es una llamada al propio backend de InsForge. |
+| **`functions/` (Edge Functions, Deno, desplegadas con `@insforge/cli functions deploy`)** | `ai-assist`, `telegram-connect`, `telegram-disconnect`, `twilio-connect`, `twilio-disconnect`, `get-file-url`, `submit-subscription-payment`, `confirm-subscription-payment` | Lógica privilegiada que el **frontend** dispara (necesita el token del usuario + una API key admin para tocar `integrations.credentials`, bloqueada por columna para `authenticated`). |
+| **`server/` (compute service, Node/Express persistente)** | Webhook de Twilio, long-polling de cada bot de Telegram conectado, el loop de tool-calling del asistente, workers de outbox/jobs/recordatorios | Twilio llama directo (no el frontend vía SDK); Telegram no llama a nadie (long-polling saliente), pero igual necesita un proceso persistente corriendo. El asistente y los workers necesitan seguir procesando en background — algo que una función serverless de vida corta no garantiza. |
 
 **Importante para el despliegue**: por esto mismo, `app/` (el frontend) sí se puede desplegar en una plataforma
 serverless/estática como Vercel, pero `server/` (el compute service) necesita un host que mantenga un proceso Node
-siempre encendido (Railway, Render, Fly.io, un VPS) — Vercel no sirve para esa parte porque el poller de Telegram
-necesita estar escuchando todo el tiempo, no solo responder a requests puntuales.
+siempre encendido (Railway, Render, Fly.io, un VPS) — Vercel no sirve para esa parte porque el poller de Telegram y
+los workers necesitan estar corriendo todo el tiempo, no solo responder a requests puntuales.
 
 ### Stack
 
 - **Frontend** (`app/`): React 18 + TypeScript + Vite + Tailwind CSS + TanStack Query + React Hook Form + Zod +
   Radix UI + `vite-plugin-pwa`.
-- **Compute service** (`server/`): Node + Express + TypeScript, OpenAI SDK (tool-calling), Twilio SDK, `googleapis`.
+- **Compute service** (`server/`): Node + Express + TypeScript, OpenAI SDK (tool-calling), Twilio SDK.
 - **Edge Functions** (`functions/`): Deno, desplegadas a InsForge.
 - **Base de datos**: PostgreSQL vía InsForge, con RLS, triggers y RPCs en `migrations/`.
 
@@ -157,45 +185,42 @@ necesita estar escuchando todo el tiempo, no solo responder a requests puntuales
 ## Estructura del repositorio
 
 ```text
-crm-clients-wpp/
+convivIA/
 ├── app/                          # Frontend: React + Vite + TS + Tailwind
-│   ├── public/icons/             # Íconos de la PWA (manifest + apple-touch-icon)
-│   ├── scripts/
-│   │   └── generate-icons.mjs    # Genera los PNG de los íconos sin dependencias nativas
-│   ├── vite.config.ts            # Config de vite-plugin-pwa (manifest, service worker)
+│   ├── public/icons/             # Íconos de la PWA
+│   ├── scripts/generate-icons.mjs
 │   └── src/
 │       ├── pages/
 │       │   ├── auth/             # Login, registro, recuperar contraseña
-│       │   ├── onboarding/       # Wizard de 10 pasos + steps/
-│       │   └── dashboard/        # Inicio, Inbox, Reservas, Clientes, Servicios, Recursos,
-│       │                         # Agente, Integraciones, Equipo, Configuración
-│       ├── components/
-│       │   ├── ui/               # Primitivas (button, input, select, dialog, ...)
-│       │   ├── layout/            # DashboardLayout (sidebar/drawer responsivo)
-│       │   └── AcceptInvites.tsx, RequireAuth.tsx, RequireOrganization.tsx
-│       ├── hooks/                # useAuth, useOrganization, usePendingInvites
-│       └── lib/                  # insforgeClient, functionsClient, queryClient, currency
+│       │   ├── onboarding/       # Registro de la copropiedad
+│       │   ├── support/          # Panel interno de soporte (revisión de suscripciones)
+│       │   └── dashboard/        # Inicio, Conversaciones, PQRS, Reservas, Zonas comunes,
+│       │                         # Comunicados, Cartera, Pagos, Unidades, Residentes,
+│       │                         # Documentos, Asistente IA, Canales, Equipo, Auditoría, Configuración
+│       ├── components/           # ui/ (primitivas), layout/ (DashboardLayout + navigation.ts)
+│       ├── hooks/                # useAuth, useOrganization (con can()), usePropertyProfile, useAdminDashboard
+│       └── lib/                  # insforgeClient, rpc, format, labels, csv, censusImport, unitGenerator
 ├── server/                       # Compute service: Node + Express + TS
-│   ├── src/
-│   │   ├── routes/               # webhooks (Twilio), integrations (Google callback), health
-│   │   ├── services/
-│   │   │   ├── agent/            # promptBuilder, tools, toolExecutors, agentRuntime, coreRules
-│   │   │   ├── availability/     # motor de disponibilidad (horarios, recursos, capacidad)
-│   │   │   ├── reservations/     # createReservation/cancel/reschedule (vía RPCs + Google sync)
-│   │   │   ├── customers/        # findOrCreateCustomerByPhone, updateCustomer
-│   │   │   ├── conversations/    # handleInboundMessage: lógica compartida entre canales
-│   │   │   ├── google/           # OAuth callback + Google Calendar (crear/actualizar/borrar eventos)
-│   │   │   ├── twilio/           # WhatsApp
-│   │   │   └── telegram/         # long-polling multi-tenant (telegramPollingManager)
-│   │   ├── middleware/           # rateLimit, errorHandler
-│   │   ├── config/env.ts         # Validación de variables de entorno
-│   │   └── lib/                  # insforge (admin client), openai, logger
-│   └── tests/                    # vitest: disponibilidad, tools del agente, prompt, webhook, telegram
-├── functions/                    # Edge Functions (Deno), invocadas por el frontend vía insforge.functions.invoke()
-├── migrations/                   # Esquema completo + RLS + RPCs, en orden (npx @insforge/cli db migrations up)
-├── db-tests/                     # Test de aislamiento multi-tenant (SQL plano, correr con psql)
-├── scripts/
-│   └── deploy-functions.mjs      # Deploya todas las Edge Functions de una sola vez
+│   └── src/
+│       ├── routes/                # webhooks (Twilio), health
+│       ├── services/
+│       │   ├── agent/             # promptBuilder, toolRegistry, tools/, pendingActions, agentRuntime
+│       │   ├── conversations/     # identityService, inboundMessageHandler, replyComposer
+│       │   ├── finance/           # receiptService
+│       │   ├── documents/         # ingesta y chunking para RAG
+│       │   ├── jobs/               # jobWorker (background_jobs)
+│       │   ├── outbox/             # outboxSender, outboxWorker
+│       │   ├── reminders/          # paymentReminderWorker
+│       │   ├── subscription/       # billing de la plataforma
+│       │   ├── telegram/ · twilio/ # long-polling multi-tenant / WhatsApp
+│       │   └── notifications/      # pushService (Web Push)
+│       └── tests/                  # vitest
+├── functions/                     # Edge Functions (Deno), invocadas por el frontend
+├── migrations/                    # Esquema completo + RLS + RPCs, en orden (npx @insforge/cli db migrations up)
+├── db-tests/                      # Tests de esquema/RLS/RPCs sobre PGlite (Postgres local, sin proyecto real)
+├── PRPs/                          # Product Requirements Proposals (metodología de planeación)
+├── docs/                          # Documentación de producto
+├── scripts/                       # check-insforge-project.mjs, deploy-functions.mjs
 └── .env.example
 ```
 
@@ -208,7 +233,6 @@ crm-clients-wpp/
 - Una API key de [OpenAI](https://platform.openai.com) (o cualquier endpoint compatible, ej. OpenRouter, para desarrollo)
 - Un bot de Telegram gratis vía [@BotFather](https://t.me/BotFather) (canal recomendado)
 - Opcional: una cuenta de [Twilio](https://www.twilio.com) con WhatsApp habilitado
-- Opcional: un proyecto de [Google Cloud](https://console.cloud.google.com) con la API de Calendar habilitada
 
 ## Instalación
 
@@ -240,19 +264,16 @@ npx @insforge/cli secrets get ANON_KEY
 Completá en `.env`:
 - `VITE_INSFORGE_URL` / `INSFORGE_URL`: la URL de tu proyecto InsForge.
 - `VITE_INSFORGE_ANON_KEY`: la `ANON_KEY` obtenida arriba.
-- `INSFORGE_API_KEY`: una API key admin (Project Settings → API Keys en el dashboard de InsForge).
+- `INSFORGE_API_KEY`: una API key admin (Project Settings → API Keys en el dashboard de InsForge) — **nunca** la
+  expongas en variables `VITE_*` del frontend.
 
-### Datos demo
-
-`migrations/20260830121700_seed-demo-data.sql` crea 3 organizaciones demo completas (restaurante, barbería, salón
-de belleza) — horarios, servicios, recursos, en pesos colombianos — sin owner asignado. Para explorarlas: registrate
-normalmente (`/register`) y llamá la RPC `claim_demo_organization('<id-de-la-org>')` (los 3 IDs están en el propio
-archivo de seed) para convertirte en owner de una de ellas.
+`scripts/check-insforge-project.mjs` corre antes de `insforge:migrate` y `insforge:functions:deploy` para evitar
+aplicar cambios contra el proyecto InsForge equivocado.
 
 ### Desplegar las Edge Functions
 
 ```bash
-node scripts/deploy-functions.mjs
+npm run insforge:functions:deploy
 ```
 
 o una por una:
@@ -262,17 +283,15 @@ npx @insforge/cli functions deploy <slug> --file functions/<slug>.ts
 ```
 
 Cada función necesita estos secretos en InsForge (`npx @insforge/cli secrets add <KEY> <VALUE>`): `INSFORGE_BASE_URL`
-y `API_KEY` (reservados, ya provistos por InsForge), más `OPENAI_API_KEY`, `OPENAI_MODEL`, `GOOGLE_CLIENT_ID`,
-`GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` y `OAUTH_STATE_SECRET` (este último con el mismo valor que en el
-`.env` del compute service).
+y `API_KEY` (reservados, ya provistos por InsForge), más `OPENAI_API_KEY` y `OPENAI_MODEL`.
 
 ---
 
-## Configurar OpenAI (agente de IA)
+## Configurar OpenAI (asistente de IA)
 
 1. Generá una API key en [platform.openai.com](https://platform.openai.com/api-keys).
-2. Completá `OPENAI_API_KEY` en `.env` **y** como secreto de InsForge (lo usan tanto `server/` como `agent-preview`).
-3. `OPENAI_MODEL` controla el modelo usado por el agente desde un único lugar.
+2. Completá `OPENAI_API_KEY` en `.env` **y** como secreto de InsForge (lo usan tanto `server/` como `ai-assist`).
+3. `OPENAI_MODEL` controla el modelo usado por el asistente desde un único lugar.
 4. `OPENAI_BASE_URL` es opcional: permite apuntar a un endpoint compatible (ej. OpenRouter) para desarrollo sin
    costo de OpenAI directo.
 
@@ -280,9 +299,9 @@ y `API_KEY` (reservados, ya provistos por InsForge), más `OPENAI_API_KEY`, `OPE
 
 ## Configurar Telegram (canal recomendado, gratis)
 
-A diferencia de WhatsApp, Telegram no cobra por mensaje ni requiere aprobación de negocio, y el compute service lo
-atiende con **long-polling** (`server/src/services/telegram/telegramPollingManager.ts`) en vez de un webhook — por
-eso no hace falta URL pública ni dominio, ni siquiera en producción.
+A diferencia de WhatsApp, Telegram no cobra por mensaje ni requiere aprobación, y el compute service lo atiende con
+**long-polling** (`server/src/services/telegram/telegramPollingManager.ts`) en vez de un webhook — por eso no hace
+falta URL pública ni dominio, ni siquiera en producción.
 
 1. Hablá con [@BotFather](https://t.me/BotFather), mandale `/newbot`, seguí las instrucciones y copiá el token
    (formato `123456789:AA...`).
@@ -302,109 +321,35 @@ eso no hace falta URL pública ni dominio, ni siquiera en producción.
 3. Desde `/dashboard/integrations`, conectá WhatsApp con el Account SID, el Auth Token y el número
    (`whatsapp:+1415...`).
 4. En producción, dejá `TWILIO_VALIDATE_SIGNATURE=true` para validar la cabecera `X-Twilio-Signature`.
-
----
-
-## Configurar Google Calendar
-
-Sólo el **negocio** pasa por el consentimiento de Google (una vez). El **cliente** que reserva nunca necesita su
-propia cuenta de Google: si da su email al agente, se lo agrega como invitado al evento y Google le manda la
-invitación por correo — si acepta, le queda guardado en su propio calendario.
-
-1. Creá un proyecto en [Google Cloud Console](https://console.cloud.google.com) y habilitá la **Google Calendar API**.
-2. Configurá la pantalla de consentimiento OAuth (tipo **Externo**), agregando los scopes
-   `.../auth/calendar.events` y `.../auth/userinfo.email`, y tu email como usuario de prueba (modo "Testing").
-3. Creá credenciales **OAuth 2.0 Client ID** de tipo "Aplicación web".
-4. Agregá como **URI de redirección autorizado** la URL del **compute service** (Google redirige ahí, no a
-   InsForge ni al frontend):
-   ```text
-   http://localhost:3011/api/integrations/google/callback   # desarrollo
-   https://<tu-dominio-del-compute-service>/api/integrations/google/callback   # producción
-   ```
-5. Completá `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `GOOGLE_REDIRECT_URI` en `.env` **y** como secretos de
-   InsForge.
-6. Desde `/dashboard/integrations`, cada organización conecta su **propia** cuenta de Google (tokens guardados por
-   `organization_id`, nunca en una fila global).
-
----
-
-## Moneda y localización
-
-La plataforma nació pensada para Colombia: el default de moneda de negocios y servicios nuevos es **COP** (peso
-colombiano). No está hardcodeado — cada negocio puede cambiar su moneda desde **Configuración**, y cada servicio
-tiene su propio selector de moneda al crearlo o editarlo (`app/src/lib/currency.ts`), así que la plataforma sigue
-sirviendo para otros países sin cambios de esquema.
-
----
-
-## PWA — instalación en celular/escritorio
-
-La app es instalable como Progressive Web App:
-
-- **Manifest** (`vite-plugin-pwa`, configurado en `app/vite.config.ts`): nombre, ícono, `theme_color` de marca,
-  `display: "standalone"` (se abre sin barra de navegador).
-- **Íconos**: generados con `app/scripts/generate-icons.mjs` (sin dependencias nativas de imágenes) — 192px, 512px,
-  512px "maskable" (Android) y `apple-touch-icon` (iOS). Para regenerarlos tras cambiar el color de marca:
-  ```bash
-  node app/scripts/generate-icons.mjs
-  ```
-- **Service worker propio** (`app/src/sw.ts`, modo `injectManifest` de `vite-plugin-pwa`): precachea el shell de la
-  app (HTML/JS/CSS/íconos) para que abra instantáneo, y además escucha los eventos `push`/`notificationclick` (ver
-  [Notificaciones push](#notificaciones-push)). Los datos del negocio (reservas, conversaciones) siempre se piden
-  en vivo a InsForge, nunca se sirven desde caché.
-- **Actualizaciones**: cuando se publica una versión nueva, el usuario ve un aviso ("Hay una nueva versión
-  disponible") con un botón para actualizar al toque.
-- **Botón "Instalar app"** propio (visible en la pantalla de login, `app/src/components/InstallAppButton.tsx`): en
-  Android/Chrome dispara la instalación de un clic usando el evento `beforeinstallprompt`, capturado globalmente en
-  `app/src/hooks/useInstallPrompt.tsx` (un React Context montado una única vez en `App.tsx`, para que el evento —
-  que el navegador dispara sólo una vez por sesión — no se pierda si llega mientras el usuario está en otra
-  pantalla). Si el navegador no ofrece ese evento (o en iOS, que no lo tiene), el botón muestra instrucciones
-  manuales según la plataforma detectada.
-- El service worker **no se activa en modo desarrollo** (`npm run dev`), es el comportamiento esperado. Para
-  probar la instalación real:
-  ```bash
-  cd app
-  npm run build
-  npm run preview
-  ```
-  y abrí la URL que imprime desde el navegador del celular (misma red) o desde Chrome/Edge en desktop.
-
-Todo el dashboard es responsivo: el menú lateral se convierte en un drawer con botón de hamburguesa en mobile (con
-altura fija al viewport para que esa barra nunca se desplace al scrollear el contenido), y el Inbox (que en desktop
-muestra 3 columnas) pasa a navegación por paneles (lista → conversación, con la info del cliente en un diálogo).
+5. Fuera de la ventana de 24h de mensajes gratuitos de Meta, los envíos salientes (recordatorios de pago, novedades
+   de PQRS) usan una plantilla pre-aprobada en vez de texto libre.
 
 ---
 
 ## Notificaciones push
 
-Cuando el agente de IA confirma una reserva nueva (por Telegram/WhatsApp), el negocio recibe una notificación push
-con sonido en el celular — sin necesidad de tener la app abierta.
+Cuando un residente reporta un pago, radica un PQRS o reserva una zona común por chat, el equipo recibe una
+notificación push con sonido — sin necesidad de tener la app abierta.
 
-- **Web Push + VAPID** (estándar, sin depender de Firebase/OneSignal ni de ningún servicio de terceros de pago).
-- El service worker (`app/src/sw.ts`) escucha el evento `push` y muestra la notificación; al tocarla, enfoca la
-  pestaña de la app ya abierta o abre una nueva en `/dashboard/reservations`.
-- Cada dispositivo/navegador donde un miembro del negocio activa las notificaciones (desde **Configuración** →
-  "Notificaciones push") guarda su suscripción en `push_subscriptions`, aislada por organización con RLS.
-- El compute service (`server/src/services/notifications/pushService.ts`) manda el push, en paralelo a todas las
-  suscripciones de esa organización, cuando se crea una reserva vía el agente
-  (`server/src/services/reservations/reservationsService.ts`). Es best-effort — igual que la sincronización con
-  Google Calendar: si falla el envío, la reserva ya quedó creada de todas formas. Las reservas creadas manualmente
-  desde el dashboard no disparan push (quien las crea ya está mirando el dashboard).
+- **Web Push + VAPID** (estándar, sin depender de servicios de terceros de pago).
+- Generar el par de claves una sola vez:
+  ```bash
+  npx web-push generate-vapid-keys
+  ```
+- Completá en `.env`: `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` (compute service) + `VITE_VAPID_PUBLIC_KEY`
+  (frontend, **mismo valor** que `VAPID_PUBLIC_KEY`).
+- Sin estas variables, la funcionalidad queda deshabilitada automáticamente — el resto de la app sigue funcionando
+  igual.
 
-### Configurar VAPID
+---
 
-```bash
-npx web-push generate-vapid-keys
-```
+## Suscripción de la copropiedad (billing de la plataforma)
 
-Completá con el par que te devuelva:
-- `.env`: `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY` (compute service) + `VITE_VAPID_PUBLIC_KEY` (frontend, **mismo
-  valor** que `VAPID_PUBLIC_KEY`).
-- Como secretos de InsForge sólo hace falta si algún día una Edge Function necesita mandar push directamente; hoy
-  sólo los usa el compute service, así que alcanza con el `.env` de `server/` en el host donde lo despliegues.
-
-Sin estas variables, la funcionalidad queda deshabilitada automáticamente (el botón de Configuración explica que el
-navegador/dispositivo no la soporta) — el resto de la app sigue funcionando igual.
+Mientras no hay una pasarela de pago automática, la copropiedad paga la suscripción de ConvivIA por Nequi y sube el
+comprobante desde el dashboard (`SubscriptionCard`); el equipo interno de soporte (`/support`, rol separado de las
+administraciones) lo confirma o rechaza vía las Edge Functions `submit-subscription-payment` /
+`confirm-subscription-payment`. Es un flujo independiente de la **cartera de residentes** (eso es dinero que los
+residentes le deben a la copropiedad; esto es lo que la copropiedad le paga a la plataforma).
 
 ---
 
@@ -414,8 +359,8 @@ navegador/dispositivo no la soporta) — el resto de la app sigue funcionando ig
 npm run dev
 ```
 
-Levanta en paralelo:
-- Compute service en `http://localhost:3011` (webhook de Twilio, callback de Google, poller de Telegram)
+Levanta en paralelo (vía `concurrently`):
+- Compute service en `http://localhost:3011` (webhook de Twilio, poller de Telegram, workers)
 - Frontend en `http://localhost:5173`
 
 Las Edge Functions no tienen modo "dev local": se prueban desplegándolas a InsForge e invocándolas desde la app.
@@ -426,20 +371,19 @@ Las Edge Functions no tienen modo "dev local": se prueban desplegándolas a InsF
 npm test
 ```
 
-Corre la suite de `server` (vitest: motor de disponibilidad, reglas y herramientas del agente, prompt builder,
-webhook de Twilio, procesamiento de Telegram — con InsForge mockeado, no requiere proyecto real) y de `app`.
+Corre, en orden: `db-tests` (esquema, RLS y RPCs sobre **PGlite** — Postgres compilado a WASM, sin necesitar un
+proyecto InsForge real ni credenciales), la suite de `server` (vitest: asistente y sus herramientas, prompt
+builder, `pendingActions`, outbox, webhook de Twilio, procesamiento de Telegram — con InsForge mockeado) y la de
+`app`.
 
-### Tests de aislamiento multi-tenant / RLS
+Para correr sólo los tests de base de datos:
 
 ```bash
-psql "<connection-string-de-tu-proyecto-InsForge>" -f db-tests/tenant-isolation.sql
+npm run test:db
 ```
 
-Verifica que un owner/staff de una organización no puede leer, insertar, actualizar ni borrar datos de otra, que
-staff no puede ver integraciones ni eliminar la organización, y que el `EXCLUDE` constraint bloquea reservas
-solapadas. Requiere reemplazar los UUID de usuarios de prueba por cuentas reales ya registradas y ejecutarse en una
-única sesión `psql` (no como una secuencia de `db query` sueltos, porque necesita mantener `SET LOCAL ROLE` dentro
-de una misma transacción).
+`db-tests/tests/tenancy.test.ts` verifica específicamente el aislamiento multi-tenant: que una copropiedad no puede
+leer ni modificar datos de otra, y que los permisos por rol (`has_org_permission`) se respetan.
 
 ## Build y producción
 
@@ -450,12 +394,12 @@ npm run build
 - **Frontend** (`app/`): build estático — se puede desplegar en Vercel, Netlify, cualquier CDN, o
   `npx @insforge/cli deployments deploy app`. Sólo necesita las variables `VITE_*`.
 - **Compute service** (`server/`): necesita un host que mantenga un proceso Node siempre encendido — **no sirve
-  Vercel** para esta parte, porque el poller de Telegram tiene que estar escuchando todo el tiempo. Alternativas
-  con nivel gratuito: Railway, Render, Fly.io; o `npx @insforge/cli compute deploy`; o un VPS con PM2.
-- **Edge Functions**: `npx @insforge/cli functions deploy <slug> --file functions/<slug>.ts` por cada una, o
-  `node scripts/deploy-functions.mjs` para todas.
-- **Base de datos**: aplicar migraciones nuevas con `npx @insforge/cli db migrations up --all`.
-- Activar HTTPS en el dominio del compute service (requerido por Twilio y por el redirect URI de Google OAuth).
+  Vercel** para esta parte, porque el poller de Telegram y los workers tienen que estar corriendo todo el tiempo.
+  Alternativas con nivel gratuito: Railway, Render, Fly.io; o `npx @insforge/cli compute deploy`; o un VPS con PM2.
+- **Edge Functions**: `npm run insforge:functions:deploy` (todas) o
+  `npx @insforge/cli functions deploy <slug> --file functions/<slug>.ts` (una por una).
+- **Base de datos**: aplicar migraciones nuevas con `npm run insforge:migrate`.
+- Activar HTTPS en el dominio del compute service (requerido por Twilio).
 - Configurar todas las variables de `.env.example` como variables de entorno del proveedor elegido.
 
 ---
@@ -463,38 +407,32 @@ npm run build
 ## Checklist de arquitectura
 
 - [x] PostgreSQL (InsForge) como única fuente de verdad.
-- [x] Multi-tenant con `organizations` + `organization_members` + roles `owner/admin/staff`.
+- [x] Multi-tenant con `organizations` (copropiedades) + `organization_members` + RBAC granular por permisos.
 - [x] RLS activo en todas las tablas tenant-aware, con funciones helper `SECURITY DEFINER`
       (`SET search_path = pg_catalog, public, pg_temp`) para evitar recursión.
-- [x] GRANT explícito + REVOKE de columna (`integrations.credentials`).
-- [x] Prevención de doble reserva con `EXCLUDE` constraint + locks de asesoría.
-- [x] `book_reservation` valida que el servicio/recurso pertenezcan a la organización que reserva (aislamiento
-      multi-tenant también a nivel de datos referenciados, no sólo de filas propias).
-- [x] Agente con tool-calling multi-ronda, confirmación explícita antes de reservar, IDs de servicio/recurso
-      siempre resueltos contra el catálogo real (nunca inventados).
-- [x] Telegram por organización vía long-polling (sin URL pública) — canal recomendado por costo cero.
-- [x] WhatsApp/Twilio con routing multi-organización por número y validación de firma configurable.
-- [x] Google Calendar por organización (OAuth propio del negocio) + invitación al cliente como asistente del
-      evento cuando da su email.
-- [x] Onboarding de 10 pasos, aceptación de invitaciones de equipo.
-- [x] Dashboard completo: inicio, inbox, reservas, clientes, servicios (con carga masiva por Excel), recursos,
-      agente (con preview), integraciones, equipo, configuración.
-- [x] Moneda configurable por negocio (COP por defecto).
+- [x] Patrón proponer → confirmar para toda acción del asistente que cambie estado.
+- [x] Identidad de residentes verificada por canal (WhatsApp/Telegram), nunca por lo que diga el modelo.
+- [x] Cartera y aplicación de pagos calculadas en base de datos (FIFO), nunca por la IA.
+- [x] Cargos inmutables salvo anulación explícita; nada se borra sin dejar rastro de auditoría.
+- [x] RAG sobre documentos con búsqueda de texto completo en español, respetando visibilidad configurada.
+- [x] Telegram por copropiedad vía long-polling (sin URL pública) — canal recomendado por costo cero.
+- [x] WhatsApp/Twilio con validación de firma y manejo de la ventana de 24h de Meta.
+- [x] Onboarding simple, aceptación de invitaciones de equipo.
+- [x] Dashboard completo: inicio, conversaciones, PQRS, reservas, zonas comunes, comunicados, cartera, pagos,
+      unidades (con importación de censo), residentes, documentos, asistente (con preview), canales, equipo,
+      auditoría, configuración.
 - [x] PWA instalable, responsiva en mobile y desktop.
-- [x] Notificaciones push (Web Push + VAPID) al negocio cuando el agente confirma una reserva nueva.
-- [x] Logging estructurado sin secretos, rate limiting, protección de costos de IA, validaciones con Zod.
+- [x] Notificaciones push (Web Push + VAPID) al equipo cuando el asistente registra algo que requiere revisión.
+- [x] Tests de aislamiento multi-tenant y RLS automatizados sobre PGlite (no requieren un proyecto real).
+- [x] Logging estructurado sin secretos, rate limiting, validaciones con Zod.
 
 ## Simplificaciones conocidas / próximos pasos
 
-- **Vista de reservas**: sólo hay vista de **lista** con filtros por estado. La vista de calendario
-  mensual/semanal queda como siguiente paso de UI.
-- **`check-availability` duplicado**: la Edge Function y el servicio interno del compute service implementan el
-  mismo algoritmo por separado (Deno y Node) en vez de compartir una única fuente de verdad en SQL.
+- **Vista de reservas**: sólo hay vista de **lista** con filtros. La vista de calendario mensual/semanal queda como
+  siguiente paso de UI.
 - **Invitaciones de equipo sin email automático**: "invitar" crea un registro en `organization_invites` que la
   persona debe aceptar manualmente iniciando sesión con ese email — no se envía un email de invitación automático.
-- **Tests de RLS**: escritos en `db-tests/tenant-isolation.sql` pero deben ejecutarse manualmente contra un
-  proyecto InsForge real antes de un primer despliegue a producción.
-- **Google Login / Magic Link**: activables desde la configuración de Auth de InsForge sin cambios de código más
-  allá de agregar los botones de UI (`insforge.auth.signInWithOAuth`).
-- **Bundle del frontend**: el chunk principal supera los 500kB tras minificar; dividirlo con `manualChunks` o
-  `import()` dinámico mejoraría el tiempo de carga inicial en conexiones móviles lentas.
+- **Suscripción de la plataforma manual**: el cobro de ConvivIA a la copropiedad es por comprobante de Nequi
+  revisado por soporte; falta integrar una pasarela de pago automática.
+- **Bundle del frontend**: dividir el chunk principal con `manualChunks` o `import()` dinámico mejoraría el tiempo
+  de carga inicial en conexiones móviles lentas.
