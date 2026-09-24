@@ -29,6 +29,7 @@ const InboxPage = page(() => import("@/pages/dashboard/inbox/InboxPage"), "Inbox
 const PqrsPage = page(() => import("@/pages/dashboard/pqrs/PqrsPage"), "PqrsPage");
 const ReservationsPage = page(() => import("@/pages/dashboard/reservations/ReservationsPage"), "ReservationsPage");
 const CommonAreasPage = page(() => import("@/pages/dashboard/areas/CommonAreasPage"), "CommonAreasPage");
+const GatehousePage = page(() => import("@/pages/dashboard/gatehouse/GatehousePage"), "GatehousePage");
 const AnnouncementsPage = page(() => import("@/pages/dashboard/announcements/AnnouncementsPage"), "AnnouncementsPage");
 const BillingPage = page(() => import("@/pages/dashboard/billing/BillingPage"), "BillingPage");
 const PaymentsPage = page(() => import("@/pages/dashboard/payments/PaymentsPage"), "PaymentsPage");
@@ -87,6 +88,9 @@ export default function App() {
                             <Route element={<RequirePermission permission="reservations.read" />}>
                               <Route path="reservations" element={<ReservationsPage />} />
                               <Route path="common-areas" element={<CommonAreasPage />} />
+                            </Route>
+                            <Route element={<RequirePermission permission="porteria.read" />}>
+                              <Route path="gatehouse" element={<GatehousePage />} />
                             </Route>
                             <Route element={<RequirePermission permission="communications.read" />}>
                               <Route path="announcements" element={<AnnouncementsPage />} />

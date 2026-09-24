@@ -10,6 +10,7 @@ import {
   Megaphone,
   Plug,
   Settings,
+  ShieldCheck,
   Trees,
   Users,
   UsersRound,
@@ -54,6 +55,7 @@ export const NAV_SECTIONS: NavSection[] = [
         badge: (d) => d.reservations.pending_approval
       },
       { to: "/dashboard/common-areas", label: "Zonas comunes", icon: Trees, permission: "reservations.read" },
+      { to: "/dashboard/gatehouse", label: "Portería", icon: ShieldCheck, permission: "porteria.read" },
       { to: "/dashboard/announcements", label: "Comunicados", icon: Megaphone, permission: "communications.read" }
     ]
   },

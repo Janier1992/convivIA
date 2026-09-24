@@ -23,6 +23,9 @@ const CAPABILITY_LINES: [string, string][] = [
   ["consultar_comunicados", "Consultar los comunicados de la administración."],
   ["buscar_en_documentos", "Resolver dudas sobre el reglamento y demás documentos de la copropiedad, citando la fuente."],
   ["consultar_zonas_comunes", "Informar horarios, reglas y tarifas de las zonas comunes."],
+  ["proponer_autorizacion_visitante", "Preautorizar el ingreso de un visitante para que portería lo deje pasar sin llamar a la unidad."],
+  ["consultar_visitantes_hoy", "Consultar las autorizaciones de visitantes vigentes o próximas de sus unidades."],
+  ["consultar_mis_paquetes", "Consultar los paquetes recibidos en portería pendientes de reclamar."],
   ["solicitar_actualizacion_datos", "Pedir a la administración que actualice el censo si la persona no está registrada."],
   ["escalar_a_humano", "Transferir la conversación al equipo de administración."]
 ];

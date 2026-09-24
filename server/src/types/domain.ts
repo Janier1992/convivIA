@@ -47,6 +47,7 @@ export interface AgentConfig {
   reservations_enabled: boolean;
   documents_enabled: boolean;
   handoff_enabled: boolean;
+  visitors_enabled: boolean;
 }
 
 export interface AgentRule {

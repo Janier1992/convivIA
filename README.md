@@ -64,6 +64,12 @@ Configuración de zonas comunes (salón social, piscina, gimnasio, etc.) con hor
 creadas por el equipo o por los propios residentes vía el asistente — con prevención de choques de horario a nivel
 de base de datos.
 
+### Portería y visitantes
+Bitácora digital de portería: preautorización de visitantes (desde el panel o desde el chat, con confirmación
+del residente), registro real de ingreso/salida en la garita, paquetes recibidos con aviso automático al
+contacto principal de la unidad cuando hay canal conectado, y novedades generales de turno. Interfaz de una
+sola pantalla, pensada para registrarse en segundos en la garita.
+
 ### Comunicados
 Se entregan **como mensaje privado por el chat de cada persona, nunca como lista pública o grupo**, con ayuda
 opcional de la IA para redactarlos.
@@ -77,7 +83,8 @@ reglamento (búsqueda de texto completo en español sobre Postgres).
 - Nombre y tono propios (ej. formal, amable-tuteo), instrucciones personalizadas y reglas adicionales de la
   copropiedad — siempre después de las reglas críticas del sistema, que nunca se pueden desactivar ni contradecir.
 - Capacidades activables/desactivables una por una: consultar estado de cuenta, reportar pagos, radicar/consultar
-  PQRS, reservar zonas comunes, buscar en documentos, transferir a una persona del equipo.
+  PQRS, reservar zonas comunes, preautorizar visitantes y consultar paquetes, buscar en documentos, transferir a
+  una persona del equipo.
 - **Nunca ejecuta una acción directamente**: primero la propone (validada de forma determinística contra los datos
   reales) y sólo la ejecuta si el residente la confirma explícitamente en un mensaje posterior — protege contra que
   el modelo "alucine" un pago, una reserva o un PQRS que nunca pidieron.
@@ -194,7 +201,7 @@ convivIA/
 │       │   ├── auth/             # Login, registro, recuperar contraseña
 │       │   ├── onboarding/       # Registro de la copropiedad
 │       │   ├── support/          # Panel interno de soporte (revisión de suscripciones)
-│       │   └── dashboard/        # Inicio, Conversaciones, PQRS, Reservas, Zonas comunes,
+│       │   └── dashboard/        # Inicio, Conversaciones, PQRS, Reservas, Zonas comunes, Portería,
 │       │                         # Comunicados, Cartera, Pagos, Unidades, Residentes,
 │       │                         # Documentos, Asistente IA, Canales, Equipo, Auditoría, Configuración
 │       ├── components/           # ui/ (primitivas), layout/ (DashboardLayout + navigation.ts)
@@ -418,9 +425,11 @@ npm run build
 - [x] Telegram por copropiedad vía long-polling (sin URL pública) — canal recomendado por costo cero.
 - [x] WhatsApp/Twilio con validación de firma y manejo de la ventana de 24h de Meta.
 - [x] Onboarding simple, aceptación de invitaciones de equipo.
-- [x] Dashboard completo: inicio, conversaciones, PQRS, reservas, zonas comunes, comunicados, cartera, pagos,
-      unidades (con importación de censo), residentes, documentos, asistente (con preview), canales, equipo,
-      auditoría, configuración.
+- [x] Dashboard completo: inicio, conversaciones, PQRS, reservas, zonas comunes, portería, comunicados, cartera,
+      pagos, unidades (con importación de censo), residentes, documentos, asistente (con preview), canales,
+      equipo, auditoría, configuración.
+- [x] Portería y visitantes: preautorizaciones, bitácora de ingreso/salida, paquetes con aviso automático al
+      residente y novedades de turno, con permiso `porteria.*` propio y capacidad activable en el asistente.
 - [x] PWA instalable, responsiva en mobile y desktop.
 - [x] Notificaciones push (Web Push + VAPID) al equipo cuando el asistente registra algo que requiere revisión.
 - [x] Tests de aislamiento multi-tenant y RLS automatizados sobre PGlite (no requieren un proyecto real).
@@ -436,3 +445,8 @@ npm run build
   revisado por soporte; falta integrar una pasarela de pago automática.
 - **Bundle del frontend**: dividir el chunk principal con `manualChunks` o `import()` dinámico mejoraría el tiempo
   de carga inicial en conexiones móviles lentas.
+- **Portería sin control de acceso físico**: registra y consulta visitantes, paquetes y novedades, pero no
+  integra hardware (torniquetes, biométricos, lectura automática de placas). La placa del vehículo hoy es un
+  campo de texto libre, no una entidad de vehículo con historial propio.
+- **Sin asamblea, mantenimiento ni contabilidad todavía**: ver `PRPs/convivia-roadmap-ampliacion-2026-09-24.md`
+  para la priorización completa de lo que falta frente al system prompt original del proyecto.

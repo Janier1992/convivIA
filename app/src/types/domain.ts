@@ -6,7 +6,7 @@ export type Permission =
   | "residents.read" | "residents.write" | "finance.read" | "finance.write" | "pqrs.read" | "pqrs.write"
   | "reservations.read" | "reservations.write" | "communications.read" | "communications.send" | "inbox.read"
   | "inbox.reply" | "documents.read" | "documents.write" | "agent.manage" | "integrations.manage" | "team.manage"
-  | "settings.manage" | "audit.read" | "data.export";
+  | "settings.manage" | "audit.read" | "data.export" | "porteria.read" | "porteria.write";
 
 export interface Organization {
   id: string;
@@ -361,6 +361,7 @@ export interface AgentConfig {
   reservations_enabled: boolean;
   documents_enabled: boolean;
   handoff_enabled: boolean;
+  visitors_enabled: boolean;
 }
 
 export interface AgentRule {
@@ -447,5 +448,67 @@ export interface SubscriptionPayment {
   note: string | null;
   status: "pending" | "confirmed" | "rejected";
   reviewed_at: string | null;
+  created_at: string;
+}
+
+export type VisitorAuthStatus = "pending" | "used" | "expired" | "revoked";
+export type VisitorLogKind = "visitor" | "service" | "delivery" | "other";
+export type PackageStatus = "received" | "delivered" | "returned";
+export type GateNoteCategory = "security" | "maintenance" | "general" | "incident";
+
+export interface VisitorAuthorization {
+  id: string;
+  organization_id: string;
+  unit_id: string;
+  requested_by_person_id: string | null;
+  visitor_name: string;
+  visitor_document: string | null;
+  visitor_phone: string | null;
+  vehicle_plate: string | null;
+  valid_from: string;
+  valid_until: string;
+  status: VisitorAuthStatus;
+  notes: string | null;
+  source: "dashboard" | "agent";
+  created_at: string;
+  units?: { code: string } | null;
+}
+
+export interface VisitorLog {
+  id: string;
+  organization_id: string;
+  unit_id: string | null;
+  authorization_id: string | null;
+  visitor_name: string;
+  visitor_document: string | null;
+  visitor_phone: string | null;
+  vehicle_plate: string | null;
+  kind: VisitorLogKind;
+  entry_at: string;
+  exit_at: string | null;
+  notes: string | null;
+  units?: { code: string } | null;
+}
+
+export interface PackageRow {
+  id: string;
+  organization_id: string;
+  unit_id: string;
+  courier: string | null;
+  description: string | null;
+  status: PackageStatus;
+  received_at: string;
+  delivered_at: string | null;
+  delivered_to_name: string | null;
+  notes: string | null;
+  units?: { code: string } | null;
+}
+
+export interface GateNote {
+  id: string;
+  organization_id: string;
+  category: GateNoteCategory;
+  note: string;
+  shift: string | null;
   created_at: string;
 }

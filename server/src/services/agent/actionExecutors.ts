@@ -5,7 +5,7 @@ import { toAppError } from "../../utils/AppError.js";
 import { notifyOrganization } from "../notifications/pushService.js";
 import type { ToolContext } from "./toolTypes.js";
 
-export type ActionType = "create_pqrs" | "book_area" | "cancel_area_reservation" | "report_payment";
+export type ActionType = "create_pqrs" | "book_area" | "cancel_area_reservation" | "report_payment" | "create_visitor_authorization";
 
 type Executor = (payload: Record<string, unknown>, ctx: ToolContext) => Promise<Record<string, unknown>>;
 
@@ -115,9 +115,39 @@ const reportPayment: Executor = async (payload, ctx) => {
   };
 };
 
+const createVisitorAuthorization: Executor = async (payload, ctx) => {
+  const auth = await rpc<{ id: string; visitor_name: string; valid_from: string; valid_until: string; status: string }>(
+    "create_visitor_authorization",
+    {
+      p_organization_id: ctx.organizationId,
+      p_unit_id: payload.unit_id,
+      p_visitor_name: payload.visitor_name,
+      p_valid_from: payload.valid_from,
+      p_valid_until: payload.valid_until,
+      p_visitor_document: payload.visitor_document ?? null,
+      p_visitor_phone: payload.visitor_phone ?? null,
+      p_vehicle_plate: payload.vehicle_plate ?? null,
+      p_notes: payload.notes ?? null,
+      p_requested_by_person_id: payload.requested_by_person_id ?? null,
+      p_conversation_id: ctx.conversationId,
+      p_source: "agent",
+      p_actor_kind: "agent"
+    },
+    "No se pudo crear la autorización de visitante."
+  );
+  notify(ctx.organizationId, "Nueva autorización de visitante", `${auth.visitor_name}`, "/dashboard/gatehouse");
+  return {
+    autorizacion_id: auth.id,
+    visitante: auth.visitor_name,
+    desde: formatDateTimeInZone(auth.valid_from, ctx.timezone),
+    hasta: formatDateTimeInZone(auth.valid_until, ctx.timezone)
+  };
+};
+
 export const ACTION_EXECUTORS: Record<ActionType, Executor> = {
   create_pqrs: createPqrs,
   book_area: bookArea,
   cancel_area_reservation: cancelAreaReservation,
-  report_payment: reportPayment
+  report_payment: reportPayment,
+  create_visitor_authorization: createVisitorAuthorization
 };

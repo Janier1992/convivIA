@@ -8,7 +8,7 @@ export type ChannelAction = "request_contact";
 
 export type ToolAccess = "public" | "verified";
 
-export type Capability = "core" | "finance" | "payment_reports" | "pqrs" | "reservations" | "documents" | "handoff";
+export type Capability = "core" | "finance" | "payment_reports" | "pqrs" | "reservations" | "documents" | "handoff" | "visitors";
 
 /** Clasificación de veracidad (sección 11 del prompt maestro). */
 export type DataType = "DATO_ESTRUCTURADO" | "DOCUMENTAL" | "CALCULO" | "ACCION";

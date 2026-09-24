@@ -5,10 +5,13 @@ import { AREA_TOOLS } from "./tools/areaTools.js";
 import { CONVERSATION_TOOLS } from "./tools/conversationTools.js";
 import { FINANCE_TOOLS } from "./tools/financeTools.js";
 import { INFO_TOOLS } from "./tools/infoTools.js";
+import { PORTERIA_TOOLS } from "./tools/porteriaTools.js";
 import { PQRS_TOOLS } from "./tools/pqrsTools.js";
 import { fail, type Capability, type ToolContext, type ToolDefinition, type ToolResult } from "./toolTypes.js";
 
-export const ALL_TOOLS: ToolDefinition[] = [...INFO_TOOLS, ...FINANCE_TOOLS, ...PQRS_TOOLS, ...AREA_TOOLS, ...CONVERSATION_TOOLS];
+export const ALL_TOOLS: ToolDefinition[] = [
+  ...INFO_TOOLS, ...FINANCE_TOOLS, ...PQRS_TOOLS, ...AREA_TOOLS, ...PORTERIA_TOOLS, ...CONVERSATION_TOOLS
+];
 
 const CAPABILITY_FLAGS: Record<Exclude<Capability, "core">, keyof AgentConfig> = {
   finance: "finance_enabled",
@@ -16,7 +19,8 @@ const CAPABILITY_FLAGS: Record<Exclude<Capability, "core">, keyof AgentConfig> =
   pqrs: "pqrs_enabled",
   reservations: "reservations_enabled",
   documents: "documents_enabled",
-  handoff: "handoff_enabled"
+  handoff: "handoff_enabled",
+  visitors: "visitors_enabled"
 };
 
 export function isCapabilityEnabled(agent: AgentConfig, capability: Capability): boolean {
