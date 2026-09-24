@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Identidad ConvivIA: azul institucional (confianza, finanzas) + verde
+ * azulado de acento (comunidad). Tokens HSL; todos los pares texto/fondo
+ * cumplen contraste WCAG AA. El verde de "éxito" y el rojo "destructivo"
+ * se distinguen también por ícono y texto, nunca solo por color.
+ */
+@layer base {
+  :root {
+    --color-primary: 212 72% 32%;
+    --color-primary-foreground: 0 0% 100%;
+    --color-accent: 168 64% 30%;
+    --color-accent-foreground: 0 0% 100%;
+    --color-secondary: 214 30% 92%;
+    --color-secondary-foreground: 215 30% 18%;
+    --color-success: 145 55% 30%;
+    --color-success-foreground: 0 0% 100%;
+    --color-warning: 34 92% 38%;
+    --color-warning-foreground: 0 0% 100%;
+    --color-destructive: 4 70% 45%;
+    --color-destructive-foreground: 0 0% 100%;
+    --color-background: 216 33% 97%;
+    --color-foreground: 215 30% 15%;
+    --color-card: 0 0% 100%;
+    --color-card-foreground: 215 30% 15%;
+    --color-border: 214 25% 87%;
+    --color-muted: 214 30% 94%;
+    --color-muted-foreground: 215 15% 40%;
+    --shadow-elevated: 0 1px 2px hsl(215 30% 15% / 0.06), 0 8px 24px -12px hsl(215 30% 15% / 0.18);
+    /* Rampa ordinal (un solo tono) para edades de cartera: más antigua =
+       más contraste. Validada con dataviz/validate_palette.js --ordinal. */
+    --aging-0: #86b6ef;
+    --aging-1: #5598e7;
+    --aging-2: #2a78d6;
+    --aging-3: #1c5cab;
+    --aging-4: #104281;
+  }
+
+  .dark {
+    --color-primary: 213 80% 68%;
+    --color-primary-foreground: 218 45% 10%;
+    --color-accent: 168 55% 52%;
+    --color-accent-foreground: 170 50% 8%;
+    --color-secondary: 217 22% 18%;
+    --color-secondary-foreground: 213 30% 92%;
+    --color-success: 145 45% 55%;
+    --color-success-foreground: 150 40% 8%;
+    --color-warning: 38 90% 60%;
+    --color-warning-foreground: 30 60% 8%;
+    --color-destructive: 4 80% 66%;
+    --color-destructive-foreground: 4 60% 10%;
+    --color-background: 218 30% 8%;
+    --color-foreground: 213 30% 92%;
+    --color-card: 218 26% 11%;
+    --color-card-foreground: 213 30% 92%;
+    --color-border: 217 20% 20%;
+    --color-muted: 217 22% 15%;
+    --color-muted-foreground: 215 15% 66%;
+    --shadow-elevated: 0 1px 2px hsl(0 0% 0% / 0.4), 0 8px 24px -12px hsl(0 0% 0% / 0.6);
+    --aging-0: #184f95;
+    --aging-1: #256abf;
+    --aging-2: #3987e5;
+    --aging-3: #6da7ec;
+    --aging-4: #9ec5f4;
+  }
+
+  html {
+    @apply antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1 {
+    @apply tracking-tight;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/40 ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  .input-base {
+    @apply w-full rounded-md border border-border bg-card px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .card-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  .table-base {
+    @apply w-full text-left text-sm;
+  }
+  .table-base thead th {
+    @apply whitespace-nowrap border-b border-border px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground;
+  }
+  .table-base tbody td {
+    @apply border-b border-border/70 px-4 py-3 align-middle;
+  }
+  .table-base tbody tr {
+    @apply transition-colors hover:bg-muted/50;
+  }
+  .brand-gradient {
+    background-image: linear-gradient(135deg, hsl(var(--color-primary)) 0%, hsl(var(--color-accent)) 100%);
+  }
+}
+
+/* Se tipean montos y cantidades directamente, sin flechas de incremento. */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

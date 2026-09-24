@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Administra tu copropiedad: cartera, pagos, PQRS, reservas de zonas comunes, comunicados y un asistente por WhatsApp y Telegram." />
+    <meta name="theme-color" content="#174A8B" />
+
+    <!-- iOS no lee el manifest.json para el modo "app instalada": necesita estas etiquetas explícitas.
+         mobile-web-app-capable es el reemplazo estándar que ahora también pide Chrome/Android; se
+         mantienen ambas porque Safari en iOS todavía sólo reconoce la de "apple-". -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ConvivIA" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <title>ConvivIA — Administración de copropiedades</title>
+
+    <!-- Aplica el tema guardado (o la preferencia del sistema) ANTES de que
+         React monte: evita el flash de tema claro cuando el usuario ya
+         eligió oscuro. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var dark = stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

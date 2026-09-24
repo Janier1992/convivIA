@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>ReservasIA: Manual de usuario</title>
+<style>
+  @font-face {
+    font-family: "Inter";
+    src: url("fonts/inter-latin.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: "InterExt";
+    src: url("fonts/inter-latin-ext.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+  }
+
+  :root {
+    --ink: #2a2522;
+    --muted: #6b6355;
+    --accent: #b4513a;
+    --accent-soft: #f0dfd3;
+    --green: #6b7f3f;
+    --green-soft: #ebe7d6;
+    --orange: #c68a3b;
+    --orange-soft: #f3e6d1;
+    --line: #e4d9c4;
+    --card-border: #eadfcb;
+    --cream: #f6f0e4;
+    --callout: #f2e6da;
+  }
+
+  @page { size: letter; margin: 42pt; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body {
+    font-family: "Inter", "InterExt", "Segoe UI", Arial, sans-serif;
+    color: var(--ink);
+    font-size: 12.5pt;
+    line-height: 1.62;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .sheet { background: var(--cream); }
+
+  p { margin: 0 0 10pt; text-align: justify; }
+  strong { font-weight: 700; }
+
+  .eyebrow {
+    display: inline-block;
+    margin: 22pt 0 10pt;
+    padding: 5pt 11pt;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 9.5pt;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  h1 { font-size: 19pt; line-height: 1.25; margin: 0 0 12pt; font-weight: 700; letter-spacing: -0.01em; break-after: avoid; }
+  h2.feature { display: flex; align-items: center; gap: 10pt; font-size: 19pt; line-height: 1.25; margin: 0 0 10pt; font-weight: 700; letter-spacing: -0.01em; break-after: avoid; }
+  h2.feature .badge {
+    flex: none; display: inline-flex; align-items: center; justify-content: center;
+    width: 26pt; height: 26pt; border-radius: 7pt; background: var(--accent); color: #fff; font-size: 13pt; font-weight: 700;
+  }
+  h3 { font-size: 13.5pt; line-height: 1.3; margin: 16pt 0 8pt; color: var(--accent); font-weight: 700; break-after: avoid; }
+
+  .keep { break-inside: avoid; }
+
+  ul.checks { list-style: none; margin: 0 0 12pt; padding: 0; }
+  ul.checks li { position: relative; padding-left: 20pt; margin-bottom: 6pt; line-height: 1.5; text-align: justify; break-inside: avoid; }
+  ul.checks li::before { content: "✓"; position: absolute; left: 1pt; top: 0; color: var(--green); font-weight: 700; font-family: "Segoe UI Symbol", "Segoe UI", sans-serif; }
+
+  ol.steps { margin: 0 0 12pt; padding-left: 20pt; }
+  ol.steps li { margin-bottom: 6pt; line-height: 1.5; text-align: justify; }
+
+  code { font-family: Consolas, "Courier New", monospace; font-size: 11pt; }
+
+  figure { margin: 6pt 0 16pt; break-inside: avoid; }
+  figure img { display: block; width: 100%; border-radius: 10pt; border: 1px solid var(--card-border); box-shadow: 0 5pt 16pt rgba(70, 45, 20, 0.12); }
+  figure.narrow img { width: 62%; margin: 0 auto; }
+  figcaption { margin-top: 8pt; text-align: center; color: var(--muted); font-size: 10.5pt; line-height: 1.4; }
+
+  .phones { display: flex; justify-content: center; gap: 28pt; }
+  .phones img { width: 32%; }
+
+  .callout { break-inside: avoid; margin: 12pt 0 16pt; padding: 12pt 16pt; border-left: 4pt solid var(--accent); border-radius: 0 9pt 9pt 0; background: var(--callout); line-height: 1.55; }
+  .callout.green { border-left-color: var(--green); background: var(--green-soft); }
+  .callout.orange { border-left-color: var(--orange); background: var(--orange-soft); }
+
+  .grid { display: grid; gap: 10pt; margin: 6pt 0 14pt; }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .card { break-inside: avoid; background: #fff; border: 1px solid var(--card-border); border-radius: 10pt; padding: 12pt 14pt; }
+  .niche { display: flex; align-items: center; justify-content: center; min-height: 40pt; padding: 8pt 10pt; text-align: center; font-size: 11pt; font-weight: 600; line-height: 1.3; }
+  .niche.more { background: transparent; border-style: dashed; color: var(--muted); font-weight: 500; }
+
+  .card h4 { margin: 0 0 6pt; font-size: 13pt; color: var(--accent); font-weight: 700; }
+  .card p { font-size: 10.5pt; line-height: 1.55; margin: 0; }
+  .preset h4 { font-size: 11.5pt; margin-bottom: 5pt; }
+  .preset ul { margin: 0; padding: 0; list-style: none; font-size: 9.8pt; line-height: 1.5; }
+  .preset li { display: flex; justify-content: space-between; gap: 6pt; border-bottom: 1px dashed var(--line); padding: 2pt 0; }
+  .preset li:last-child { border-bottom: none; }
+  .preset li span:last-child { color: var(--muted); white-space: nowrap; }
+
+  .flow { display: flex; align-items: flex-start; justify-content: space-between; margin: 12pt 0 18pt; break-inside: avoid; }
+  .flow .step { width: 19%; text-align: center; font-size: 10pt; font-weight: 700; line-height: 1.4; }
+  .flow .icon { width: 40pt; height: 40pt; margin: 0 auto 7pt; border-radius: 11pt; background: #fff; border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; box-shadow: 0 3pt 8pt rgba(70,45,20,.07); }
+  .flow .icon svg { width: 19pt; height: 19pt; }
+  .flow .arrow { padding-top: 13pt; color: #cbbfa9; font-size: 12pt; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 11pt; line-height: 1.45; }
+  thead th { background: #efe6d5; color: var(--muted); font-size: 9pt; letter-spacing: 0.07em; text-transform: uppercase; text-align: left; padding: 9pt 10pt; font-weight: 700; }
+  tbody td { padding: 9pt 10pt; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr { break-inside: avoid; }
+  table.niches td:first-child { font-weight: 700; width: 24%; }
+  table.niches td:last-child { width: 30%; color: var(--muted); }
+  .note { color: var(--muted); font-size: 10.5pt; line-height: 1.5; text-align: left; }
+
+  .title-row { display: flex; align-items: center; justify-content: space-between; gap: 12pt; margin-bottom: 12pt; break-after: avoid; }
+  .title-row h1 { margin: 0; }
+  .pill { display: inline-block; padding: 4pt 11pt; border-radius: 999px; font-size: 9.5pt; font-weight: 700; line-height: 1.35; }
+  .pill.green { background: var(--green-soft); color: var(--green); }
+  .pill.orange { background: var(--orange-soft); color: var(--orange); max-width: 190pt; }
+
+  .dark-row { display: flex; gap: 16pt; align-items: center; margin: 8pt 0 14pt; break-inside: avoid; }
+  .dark-row img { width: 48%; border-radius: 10pt; box-shadow: 0 5pt 16pt rgba(0,0,0,.25); }
+  .dark-row .card { flex: 1; text-align: center; }
+
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; margin: 8pt 0 16pt; break-inside: avoid; }
+  .plan { position: relative; background: #fff; border: 1.5pt solid var(--card-border); border-radius: 12pt; padding: 16pt 18pt 14pt; }
+  .plan.featured { border-color: var(--accent); }
+  .plan .ribbon { position: absolute; top: -1pt; right: 16pt; background: var(--accent); color: #fff; font-size: 9pt; font-weight: 700; padding: 3pt 10pt; border-radius: 0 0 8pt 8pt; }
+  .plan h4 { margin: 0 0 4pt; font-size: 14pt; }
+  .plan .price { font-size: 26pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .plan .price small { font-size: 10pt; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .plan .cop { color: var(--muted); font-size: 10.5pt; margin: 4pt 0 10pt; }
+  .plan ul.checks li { font-size: 11pt; margin-bottom: 4pt; }
+
+  .faq { break-inside: avoid; margin-bottom: 12pt; }
+  .faq h5 { margin: 0 0 3pt; font-size: 12.5pt; font-weight: 700; }
+  .faq p { font-size: 11pt; line-height: 1.55; margin: 0; }
+
+  .refs p { font-size: 10.5pt; line-height: 1.5; text-align: left; padding-left: 26pt; text-indent: -26pt; margin-bottom: 8pt; }
+
+  .cta { break-inside: avoid; margin: 26pt 0 18pt; padding: 22pt 24pt; border-radius: 14pt; background: var(--accent); color: #fff; text-align: center; }
+  .cta h2 { margin: 0 0 6pt; font-size: 15pt; }
+  .cta p { text-align: center; margin: 0 0 8pt; }
+  .cta .links { font-weight: 700; line-height: 1.6; margin: 0; }
+  .footnote { border-top: 1px solid var(--line); padding-top: 12pt; color: var(--muted); font-size: 10pt; line-height: 1.5; text-align: left; }
+
+  /* Portada */
+  .cover {
+    height: 708pt;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 0 40pt; text-align: center;
+    background: linear-gradient(160deg, #f7f1e6 0%, #f0e5d1 100%);
+    break-after: page;
+  }
+  .cover .logo { width: 62pt; height: 62pt; border-radius: 16pt; background: var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 10pt 22pt rgba(180, 81, 58, 0.28); margin-bottom: 26pt; }
+  .cover .logo svg { width: 30pt; height: 30pt; }
+  .cover h1 { font-size: 38pt; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 16pt; }
+  .cover .subtitle { color: var(--muted); font-size: 14pt; line-height: 1.55; max-width: 390pt; text-align: center; margin: 0 auto 34pt; }
+  .cover .pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8pt; max-width: 470pt; margin-bottom: 34pt; }
+  .cover .pills span { background: #fff; border: 1px solid var(--card-border); border-radius: 999px; padding: 6pt 13pt; font-size: 10.5pt; font-weight: 600; }
+  .cover .version { color: var(--muted); font-size: 11pt; margin: 0; text-align: center; }
+
+  /* Índice */
+  .toc { break-after: page; padding-top: 1pt; }
+  .toc h1 { font-size: 25pt; margin-bottom: 6pt; }
+  .toc .lead { color: var(--muted); margin-bottom: 10pt; }
+  .toc .row { display: flex; align-items: baseline; gap: 12pt; padding: 6.4pt 0; line-height: 1.35; border-bottom: 1px dashed #dccfb6; }
+  .toc .num { width: 24pt; color: var(--accent); font-weight: 800; font-size: 13pt; }
+  .toc .name { flex: 1; font-size: 13pt; }
+  .toc .desc { color: var(--muted); font-size: 10.5pt; text-align: right; }
+  .toc .row.new .name::after { content: "Nuevo"; margin-left: 8pt; padding: 1pt 7pt; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 8pt; font-weight: 700; vertical-align: 2pt; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- PORTADA -->
+  <section class="cover">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
+    </div>
+    <h1>ReservasIA</h1>
+    <p class="subtitle">Manual de usuario: el agente de inteligencia artificial que atiende, confirma y agenda las reservas de tu negocio, por chat, las 24 horas.</p>
+    <div class="pills">
+      <span>Restaurantes</span><span>Barberías</span><span>Salones de belleza</span><span>Spas</span>
+      <span>Odontología</span><span>Clínicas</span><span>Fisioterapia</span><span>Veterinarias</span>
+      <span>Talleres mecánicos</span><span>Academias</span><span>Gimnasios</span>
+    </div>
+    <p class="version">Versión del documento: septiembre 2026 · v2</p>
+  </section>
+
+  <!-- ÍNDICE -->
+  <section class="toc">
+    <span class="eyebrow" style="margin-top:0">Contenido</span>
+    <h1>Índice</h1>
+    <p class="lead">Guía completa de funcionalidades, rubros y planes comerciales.</p>
+    <div class="row"><span class="num">01</span><span class="name">¿Qué es ReservasIA?</span><span class="desc">Propuesta de valor y para quién es</span></div>
+    <div class="row"><span class="num">02</span><span class="name">Cómo funciona</span><span class="desc">El recorrido de una reserva, en simple</span></div>
+    <div class="row new"><span class="num">03</span><span class="name">Adaptado a cada rubro</span><span class="desc">Qué pregunta el agente según tu negocio</span></div>
+    <div class="row"><span class="num">04</span><span class="name">El panel de control (Resumen)</span><span class="desc">Estadísticas y reportes del negocio</span></div>
+    <div class="row"><span class="num">05</span><span class="name">Reservas</span><span class="desc">Lista, calendario semanal y creación manual</span></div>
+    <div class="row"><span class="num">06</span><span class="name">Clientes</span><span class="desc">Historial, notas y datos de contacto</span></div>
+    <div class="row"><span class="num">07</span><span class="name">Servicios y Recursos</span><span class="desc">El catálogo que usa el agente</span></div>
+    <div class="row"><span class="num">08</span><span class="name">Agente de IA</span><span class="desc">Personalidad, reglas y vista previa</span></div>
+    <div class="row"><span class="num">09</span><span class="name">Inbox</span><span class="desc">Conversaciones en vivo por canal</span></div>
+    <div class="row"><span class="num">10</span><span class="name">Equipo</span><span class="desc">Accesos por rol</span></div>
+    <div class="row"><span class="num">11</span><span class="name">Configuración y apariencia</span><span class="desc">Datos del negocio, tema claro/oscuro</span></div>
+    <div class="row"><span class="num">12</span><span class="name">Seguridad y privacidad</span><span class="desc">Aislamiento de datos por negocio</span></div>
+    <div class="row"><span class="num">13</span><span class="name">Planes y precios sugeridos</span><span class="desc">Comparables de mercado</span></div>
+    <div class="row"><span class="num">14</span><span class="name">Preguntas frecuentes</span><span class="desc">Dudas típicas de un dueño de negocio</span></div>
+    <div class="row"><span class="num">15</span><span class="name">Referencias</span><span class="desc">Fuentes citadas en normas APA</span></div>
+  </section>
+
+  <!-- 01 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow" style="margin-top:0">01. Introducción</span>
+      <h1>¿Qué es ReservasIA?</h1>
+      <p>ReservasIA es una plataforma que le da a cualquier negocio con reservas o turnos un <strong>agente de inteligencia artificial propio</strong>, que atiende a sus clientes por Telegram o WhatsApp, responde preguntas sobre horarios y precios, y crea, cancela o reprograma reservas consultando la disponibilidad real del negocio, sin que nadie del equipo tenga que estar pendiente del chat.</p>
+    </div>
+
+    <div class="keep">
+      <h3>¿Para qué tipo de negocio sirve?</h3>
+      <p>Cualquier negocio que trabaje con turnos, citas o reservas de tiempo limitado:</p>
+      <div class="grid cols-3">
+        <div class="card niche">Restaurantes</div>
+        <div class="card niche">Barberías y peluquerías</div>
+        <div class="card niche">Salones de belleza</div>
+        <div class="card niche">Spas y centros de estética</div>
+        <div class="card niche">Consultorios odontológicos</div>
+        <div class="card niche">Clínicas y consultorios médicos</div>
+        <div class="card niche">Fisioterapia y rehabilitación</div>
+        <div class="card niche">Veterinarias</div>
+        <div class="card niche">Talleres mecánicos</div>
+        <div class="card niche">Academias y clases</div>
+        <div class="card niche">Gimnasios y estudios</div>
+        <div class="card niche more">Y cualquier negocio con turnos</div>
+      </div>
+    </div>
+
+    <div class="keep">
+      <h3>El problema que resuelve</h3>
+      <p>La mayoría de estos negocios hoy pierden reservas y tiempo por:</p>
+      <ul class="checks">
+        <li>Mensajes de WhatsApp/Telegram sin responder fuera del horario de atención.</li>
+        <li>Tiempo del dueño o el equipo perdido coordinando turnos manualmente uno por uno.</li>
+        <li>Dobles reservas por errores humanos al anotar en una agenda de papel o una hoja de cálculo.</li>
+        <li>Clientes que se olvidan del turno porque nadie les recuerda.</li>
+      </ul>
+    </div>
+
+    <div class="keep">
+      <h3>Lo que gana el negocio</h3>
+      <ul class="checks">
+        <li>Atención automática 24/7, sin contratar a nadie nuevo.</li>
+        <li>Cero dobles reservas: el sistema lo bloquea a nivel de base de datos, no solo en la pantalla.</li>
+        <li>Un panel de control único para ver reservas, clientes, conversaciones y el rendimiento del negocio.</li>
+        <li>El agente nunca inventa precios, horarios ni promociones: todo sale de datos reales que el negocio configura.</li>
+      </ul>
+    </div>
+
+    <div class="callout"><strong>Idea clave:</strong> el dueño del negocio configura su información una sola vez (servicios, precios, horarios, tono del agente) y a partir de ahí todo funciona solo: el agente cita esos datos reales en cada conversación.</div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">02. Concepto</span>
+      <h1>Cómo funciona, en simple</h1>
+      <p>No hace falta entender de tecnología para usar ReservasIA. Así se ve el recorrido completo de una reserva:</p>
+      <div class="flow">
+        <div class="step"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b4513a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></div>Cliente escribe por Telegram/WhatsApp</div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b4513a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>El agente responde y consulta disponibilidad real</div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b7f3f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>Pide confirmación antes de reservar</div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b4513a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></div>Reserva creada + invitación a Google Calendar</div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#c68a3b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>El negocio recibe una notificación</div>
+      </div>
+    </div>
+
+    <div class="keep">
+      <h3>Tres piezas, un solo panel</h3>
+      <div class="grid cols-3">
+        <div class="card"><h4>El agente</h4><p>Conversa con tus clientes, en el idioma y tono que definas. Sigue reglas estrictas: nunca inventa nada, siempre confirma antes de actuar.</p></div>
+        <div class="card"><h4>El panel web</h4><p>Donde el negocio ve y gestiona todo (reservas, clientes, conversaciones, reportes) desde el celular o la computadora.</p></div>
+        <div class="card"><h4>Las integraciones</h4><p>Telegram, WhatsApp y Google Calendar conectados de forma independiente, cada negocio con sus propias credenciales.</p></div>
+      </div>
+    </div>
+
+    <p class="note" style="text-align:justify">Es además una <strong>PWA (Progressive Web App)</strong>: se puede instalar como una app normal en el celular o la computadora, sin pasar por ninguna tienda de aplicaciones. Todo el panel es responsivo: se adapta a pantalla de celular igual de bien que a computadora.</p>
+    <figure>
+      <div class="phones">
+        <img src="img/movil-login.png" alt="Inicio de sesión en el celular" style="border:none;box-shadow:none" />
+        <img src="img/movil-reservas.png" alt="Reservas en el celular" style="border:none;box-shadow:none" />
+      </div>
+      <figcaption>La misma plataforma, instalada y usada desde el celular.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 03 NUEVO -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">03. Hecho para tu rubro</span>
+      <h1>Un agente que entiende tu rubro</h1>
+      <p>El motor de reservas es el mismo para todos los negocios, pero el agente sabe qué datos importan en cada rubro: los pregunta de forma natural durante la conversación y los deja anotados en la reserva, para que el equipo los tenga a mano sin volver a preguntar.</p>
+    </div>
+
+    <h3>Qué pregunta y qué nunca hace, según el rubro</h3>
+    <table class="niches">
+      <thead><tr><th>Rubro</th><th>Qué pregunta y anota</th><th>Lo que nunca hace</th></tr></thead>
+      <tbody>
+        <tr><td>Consultorio odontológico</td><td>Motivo de la consulta y si es paciente nuevo. Si hay dolor fuerte o un diente roto, ofrece el turno más cercano.</td><td>Dar diagnósticos o recomendar medicamentos.</td></tr>
+        <tr><td>Clínica o consultorio médico</td><td>Motivo de la consulta.</td><td>Diagnosticar, o agendar una emergencia como un turno normal.</td></tr>
+        <tr><td>Fisioterapia y rehabilitación</td><td>Zona o motivo (rodilla, espalda, posoperatorio). A los pacientes nuevos les ofrece primero la valoración inicial.</td><td>Indicar ejercicios o tratamientos.</td></tr>
+        <tr><td>Veterinaria</td><td>Nombre del dueño, nombre y especie de la mascota, y raza o edad si el cliente las menciona.</td><td>Recetar o dar dosis. Ante una emergencia de la mascota, indica ir de inmediato.</td></tr>
+        <tr><td>Taller mecánico</td><td>Marca, modelo y placa del vehículo, y qué problema tiene o qué servicio necesita.</td><td>Dar diagnósticos definitivos o precios que no estén en el catálogo.</td></tr>
+        <tr><td>Academia o clases</td><td>Nombre y nivel o edad del estudiante (muchas veces escribe una madre o un padre). Ofrece la clase de prueba a quien consulta por primera vez.</td><td>Aceptar más alumnos que el cupo de cada horario.</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Los datos que anota el agente aparecen en cada reserva, tanto en la vista de lista como en el calendario.</p>
+
+    <div class="callout green"><strong>Salud primero:</strong> en consultorios, fisioterapia y veterinarias, el agente nunca reemplaza al profesional. Si alguien describe una emergencia (dolor en el pecho, dificultad para respirar, un accidente), no la agenda como un turno: le indica que llame a la línea de emergencias o vaya a urgencias de inmediato. Es una regla de la plataforma y no depende de la configuración de cada negocio.</div>
+
+    <div class="keep">
+      <h3>Arranque rápido: servicios sugeridos por rubro</h3>
+      <p>Al crear la cuenta, el asistente de configuración precarga los servicios típicos del rubro elegido. El dueño solo ajusta nombres y duraciones, pone sus precios y borra lo que no ofrece.</p>
+      <div class="grid cols-3">
+        <div class="card preset"><h4>Odontología</h4><ul>
+          <li><span>Valoración inicial</span><span>30 min</span></li>
+          <li><span>Limpieza dental</span><span>45 min</span></li>
+          <li><span>Resina / calza</span><span>60 min</span></li>
+          <li><span>Blanqueamiento</span><span>60 min</span></li>
+          <li><span>Urgencia</span><span>30 min</span></li>
+        </ul></div>
+        <div class="card preset"><h4>Veterinaria</h4><ul>
+          <li><span>Consulta general</span><span>30 min</span></li>
+          <li><span>Vacunación</span><span>20 min</span></li>
+          <li><span>Desparasitación</span><span>20 min</span></li>
+          <li><span>Baño y peluquería</span><span>90 min</span></li>
+          <li><span>Control posoperatorio</span><span>20 min</span></li>
+        </ul></div>
+        <div class="card preset"><h4>Taller mecánico</h4><ul>
+          <li><span>Diagnóstico general</span><span>60 min</span></li>
+          <li><span>Aceite y filtros</span><span>45 min</span></li>
+          <li><span>Revisión de frenos</span><span>90 min</span></li>
+          <li><span>Alineación y balanceo</span><span>60 min</span></li>
+          <li><span>Mantenimiento preventivo</span><span>120 min</span></li>
+        </ul></div>
+        <div class="card preset"><h4>Fisioterapia</h4><ul>
+          <li><span>Valoración inicial</span><span>60 min</span></li>
+          <li><span>Sesión de fisioterapia</span><span>45 min</span></li>
+          <li><span>Terapia deportiva</span><span>60 min</span></li>
+          <li><span>Drenaje linfático</span><span>60 min</span></li>
+        </ul></div>
+        <div class="card preset"><h4>Academia</h4><ul>
+          <li><span>Clase de prueba</span><span>60 min</span></li>
+          <li><span>Clase individual</span><span>60 min</span></li>
+          <li><span>Clase grupal</span><span>90 min</span></li>
+        </ul></div>
+        <div class="card preset"><h4>Clínica</h4><ul>
+          <li><span>Consulta general</span><span>30 min</span></li>
+          <li><span>Control</span><span>20 min</span></li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="keep">
+      <h3>Clases grupales con cupo</h3>
+      <p>Academias y gimnasios pueden definir un <strong>cupo por horario</strong> (por ejemplo, 10 alumnos por clase). El agente acepta reservas hasta completar el cupo y, cuando se llena, ofrece otros horarios disponibles. Para clases individuales, cada profesor se carga como un recurso y el agente nunca le asigna dos alumnos al mismo tiempo.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">04. El panel de control</span>
+      <h2 class="feature"><span class="badge">1</span>Resumen: el estado del negocio de un vistazo</h2>
+      <p>Es la primera pantalla que ve el dueño del negocio al entrar. Responde, sin tener que buscar nada, la pregunta "¿cómo va mi negocio hoy?".</p>
+    </div>
+    <figure>
+      <img src="img/resumen.png" alt="Pantalla de Resumen" />
+      <figcaption>Pantalla de Resumen, con estadísticas del día y reportes del negocio.</figcaption>
+    </figure>
+    <div class="keep">
+      <h3>Qué muestra</h3>
+      <ul class="checks">
+        <li><strong>Reservas de hoy</strong> y <strong>reservas próximas</strong> pendientes o confirmadas.</li>
+        <li><strong>Conversaciones activas</strong> que el agente está manejando en este momento.</li>
+        <li><strong>Clientes nuevos</strong> en los últimos 7 días.</li>
+        <li>Estado del <strong>agente de IA</strong> y de cada <strong>canal conectado</strong> (Telegram, WhatsApp, Google Calendar) de un vistazo.</li>
+      </ul>
+    </div>
+    <div class="keep">
+      <h3>Reportes del negocio</h3>
+      <p>Con un selector de período (7 / 30 / 90 días), el dueño puede ver:</p>
+      <ul class="checks">
+        <li><strong>Ingresos</strong> de las reservas completadas en el período, separados por moneda.</li>
+        <li><strong>Servicio más vendido</strong>, para saber qué promocionar.</li>
+        <li><strong>Tasa de no-show</strong>: cuántos clientes reservaron y no llegaron.</li>
+        <li><strong>Franjas horarias con más reservas</strong>, para saber cuándo el negocio está más ocupado y planear personal y recursos.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">05. Núcleo del producto</span>
+      <h2 class="feature"><span class="badge">2</span>Reservas: lista, calendario y carga manual</h2>
+      <p>Acá vive el corazón del negocio: todas las reservas, creadas por el agente o manualmente por el equipo.</p>
+    </div>
+    <h3>Vista de lista</h3>
+    <p>Todas las reservas con filtro por estado (pendiente, confirmada, completada, cancelada, no asistió), cliente, servicio y recurso asignado, junto con las notas que dejó el agente (por ejemplo, la placa del vehículo o el nombre de la mascota). Cada reserva tiene botones de acción según su estado: completar, marcar como no-show, cancelar, o eliminar una vez cerrada.</p>
+    <figure>
+      <img src="img/reservas-lista.png" alt="Vista de lista de reservas" />
+      <figcaption>Vista de lista, con filtro por estado y acciones rápidas por fila.</figcaption>
+    </figure>
+    <h3>Vista de calendario semanal</h3>
+    <p>La misma información, pero organizada visualmente por día y hora, ideal para ver de un vistazo qué tan ocupada está la semana. Las reservas que se superponen en horario (por ejemplo, dos sillas o dos consultorios ocupados al mismo tiempo) se acomodan automáticamente en columnas, y las canceladas o no-show se distinguen con un borde punteado y el horario tachado, no solo por color, así cualquier persona las identifica sin confundirlas con una reserva activa.</p>
+    <figure>
+      <img src="img/reservas-calendario.png" alt="Vista de calendario semanal" />
+      <figcaption>Vista de calendario semanal, con navegación por semana y detalle al hacer clic en una reserva.</figcaption>
+    </figure>
+    <h3>Crear una reserva manualmente</h3>
+    <p>El equipo también puede cargar una reserva a mano desde el panel (por ejemplo, si un cliente llama por teléfono), eligiendo servicio, recurso, fecha y hora, con las mismas validaciones y protección contra dobles reservas que usa el agente.</p>
+    <figure>
+      <img src="img/reserva-nueva.png" alt="Formulario de nueva reserva" />
+      <figcaption>Formulario de carga manual de una reserva nueva.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">06. Relación con el cliente</span>
+      <h2 class="feature"><span class="badge">3</span>Clientes</h2>
+      <p>Cada persona que le escribe al agente queda registrada automáticamente, con su historial completo de reservas.</p>
+    </div>
+    <figure>
+      <img src="img/clientes.png" alt="Listado de clientes" />
+      <figcaption>Listado de clientes con búsqueda por nombre o teléfono.</figcaption>
+    </figure>
+    <div class="keep">
+      <h3>Qué se puede hacer</h3>
+      <ul class="checks">
+        <li>Buscar un cliente por nombre o número de teléfono.</li>
+        <li>Ver y editar su nombre, email y notas internas (ej. preferencias, alergias, observaciones del equipo).</li>
+        <li>Ver el <strong>historial completo de reservas</strong> de ese cliente en un panel de detalle.</li>
+        <li>El email que se cargue es el que se usa para invitarlo automáticamente a su turno en Google Calendar.</li>
+      </ul>
+    </div>
+    <div>
+      <figure class="narrow">
+        <img src="img/cliente-detalle.png" alt="Detalle de un cliente" />
+        <figcaption>Panel de detalle de un cliente, con sus datos y su historial de reservas.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">07. El catálogo del negocio</span>
+      <h2 class="feature"><span class="badge">4</span>Servicios y Recursos</h2>
+      <p>Esta es la información que el agente usa para responder con datos reales: nunca inventa un precio o una duración que no esté cargada acá.</p>
+    </div>
+    <div>
+      <h3>Servicios</h3>
+      <figure>
+        <img src="img/servicios.png" alt="Catálogo de servicios" />
+        <figcaption>Catálogo de servicios: nombre, duración, precio y moneda, con edición en línea.</figcaption>
+      </figure>
+      <ul class="checks">
+        <li>Alta, edición y baja de servicios (nombre, duración, precio, moneda).</li>
+        <li><strong>Servicios sugeridos por rubro</strong> al crear la cuenta (ver sección 03), para no arrancar de cero.</li>
+        <li><strong>Carga masiva por Excel</strong>: para negocios con muchos servicios, se puede subir una planilla en vez de cargar uno por uno, con plantilla descargable y vista previa de errores antes de confirmar.</li>
+        <li>Activar/desactivar un servicio sin borrarlo (por ejemplo, una promoción de temporada).</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Recursos</h3>
+      <figure>
+        <img src="img/recursos.png" alt="Recursos del negocio" />
+        <figcaption>Recursos individuales que se reservan (mesas, sillas, consultorios, bahías, personal).</figcaption>
+      </figure>
+      <ul class="checks">
+        <li>Mesas, sillas, consultorios, bahías del taller, profesionales: cualquier unidad que atienda a un cliente por horario.</li>
+        <li>El motor de disponibilidad usa esto para no agendar nunca dos clientes al mismo tiempo en el mismo recurso.</li>
+        <li>Para clases grupales no hacen falta recursos: se define un cupo por horario (ver sección 03).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">08. El corazón de la IA</span>
+      <h2 class="feature"><span class="badge">5</span>Agente de IA</h2>
+      <p>Acá el negocio personaliza cómo se comporta su agente, sin escribir una sola línea de código.</p>
+    </div>
+    <figure>
+      <img src="img/agente.png" alt="Configuración del agente de IA" />
+      <figcaption>Configuración del agente, reglas del negocio y vista previa de conversación.</figcaption>
+    </figure>
+    <div class="keep">
+      <h3>Qué se configura</h3>
+      <ul class="checks">
+        <li><strong>Nombre y tono</strong> del agente (formal, casual o amable).</li>
+        <li><strong>Instrucciones propias del negocio</strong> (ej. "siempre ofrecé el combo antes de confirmar solo el corte").</li>
+        <li><strong>Permisos</strong>: si el agente puede crear reservas, cancelarlas y/o reprogramarlas.</li>
+        <li><strong>Reglas adicionales</strong>: sin límite, se agregan las que el negocio necesite.</li>
+        <li><strong>Guía por rubro incluida</strong>: según el tipo de negocio, el agente ya sabe qué datos pedir y qué límites respetar (ver sección 03).</li>
+      </ul>
+    </div>
+    <div class="keep">
+      <h3>Vista previa sin riesgo</h3>
+      <p>El panel incluye un chat de prueba donde el dueño puede escribirle al agente como si fuera un cliente, para probar el tono y las instrucciones, <strong>sin crear ninguna reserva real</strong>.</p>
+      <div class="callout green"><strong>Reglas que nunca cambian:</strong> el agente jamás inventa horarios, precios ni servicios (todo sale de datos reales), y siempre pide confirmación explícita antes de reservar, cancelar o reprogramar. Esto no se puede desactivar desde la configuración.</div>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">09. Cuando hace falta un humano</span>
+      <h2 class="feature"><span class="badge">6</span>Inbox</h2>
+      <p>Todas las conversaciones que el agente sostiene con los clientes, organizadas por canal, con el historial completo.</p>
+    </div>
+    <figure>
+      <img src="img/inbox.png" alt="Inbox de conversaciones" />
+      <figcaption>Bandeja de conversaciones, hilo de mensajes e información del cliente en un mismo lugar.</figcaption>
+    </figure>
+    <ul class="checks">
+      <li>Lista de conversaciones con el nombre del cliente y el canal (Telegram/WhatsApp).</li>
+      <li>Historial completo de mensajes, diferenciando lo que dijo el cliente de lo que respondió el agente.</li>
+      <li>Información del cliente y sus reservas recientes, visible sin salir de la conversación.</li>
+      <li><strong>Respuesta manual</strong>: si hace falta que una persona del equipo intervenga, puede escribir directamente desde acá.</li>
+    </ul>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">10. Accesos</span>
+      <h2 class="feature"><span class="badge">7</span>Equipo</h2>
+    </div>
+    <div>
+      <figure class="narrow">
+        <img src="img/equipo.png" alt="Gestión del equipo" />
+        <figcaption>Gestión de accesos del equipo por rol.</figcaption>
+      </figure>
+      <ul class="checks">
+        <li>Invitar personas por email con rol <strong>admin</strong> o <strong>staff</strong>.</li>
+        <li>Cambiar roles o revocar el acceso de alguien del equipo.</li>
+        <li>La organización siempre conserva al menos un dueño (<strong>owner</strong>): nunca se puede quedar sin nadie a cargo.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">11. Datos del negocio</span>
+      <h2 class="feature"><span class="badge">8</span>Configuración y apariencia</h2>
+      <p>Los datos operativos que usan tanto el motor de disponibilidad como el agente: horarios, moneda, política de cancelación, cupo por horario, notificaciones.</p>
+    </div>
+    <figure>
+      <img src="img/configuracion.png" alt="Configuración del negocio" />
+      <figcaption>Configuración general del negocio y horarios de atención.</figcaption>
+    </figure>
+    <div class="keep">
+      <h3>Tema claro y oscuro</h3>
+      <p>Pensado para negocios donde el equipo pasa muchas horas frente a la pantalla: se puede cambiar entre un tema claro y uno oscuro con un clic, disponible en toda la aplicación.</p>
+      <div class="dark-row">
+        <img src="img/resumen-oscuro.png" alt="Resumen en modo oscuro" />
+        <div class="card"><h4>Detalle de diseño</h4><p>Los colores del modo oscuro fueron elegidos pensando en accesibilidad: el color principal cambia a un azul que se distingue con claridad del verde ("éxito") y el rojo ("cancelado") para personas con daltonismo, no es solo un cambio estético.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">12. Confianza</span>
+      <h1>Seguridad y privacidad de los datos</h1>
+      <p>Un punto habitual de duda para cualquier negocio que va a confiarle sus datos de clientes a una plataforma nueva:</p>
+    </div>
+    <ul class="checks">
+      <li><strong>Cada negocio ve solo sus propios datos.</strong> La plataforma es multi-tenant: aunque muchos negocios distintos usen la misma aplicación, el aislamiento entre ellos se garantiza a nivel de base de datos (no solo con un filtro en la pantalla, que se podría evadir).</li>
+      <li><strong>Prevención de dobles reservas real</strong>, aplicada por la base de datos misma, no depende de que la pantalla esté bien programada.</li>
+      <li><strong>Credenciales de integraciones aisladas</strong> por negocio (el token de Telegram o las claves de Twilio de un negocio nunca son visibles ni accesibles para otro).</li>
+      <li><strong>Roles y permisos claros</strong>: el personal ("staff") no tiene por qué ver la misma información que el dueño o un administrador.</li>
+      <li><strong>Límites fijos en salud</strong>: en consultorios, fisioterapia y veterinarias el agente nunca da diagnósticos ni recomienda medicamentos.</li>
+      <li>Comunicación cifrada (HTTPS) en toda la plataforma.</li>
+    </ul>
+  </section>
+
+  <!-- 15 -->
+  <section>
+    <div class="keep">
+      <span class="eyebrow">13. Comercial</span>
+      <h1>Planes y precios sugeridos</h1>
+      <p>Referencia para definir precios de lanzamiento, calibrada contra el mercado de software de reservas y de agentes de IA para negocios chicos.</p>
+    </div>
+    <div>
+      <h3>Comparables del mercado</h3>
+      <table>
+        <thead><tr><th>Producto</th><th>Precio</th><th>Modelo</th></tr></thead>
+        <tbody>
+          <tr><td>CitaFlow (chatbot IA WhatsApp/Telegram)</td><td>desde $14 USD/mes</td><td>Suscripción</td></tr>
+          <tr><td>SimplyBook.me</td><td>$0 – €59.9/mes</td><td>Suscripción por funciones</td></tr>
+          <tr><td>Fresha</td><td>$14.95–19.95 USD/mes por usuario</td><td>Suscripción + 20% comisión primera visita</td></tr>
+          <tr><td>Booksy</td><td>$29.99 USD/mes + $20/usuario extra</td><td>Suscripción</td></tr>
+          <tr><td>ReservaSimple (foco LatAm)</td><td>Gratis hasta 30 reservas/mes</td><td>Freemium</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Rango general del mercado para negocios chicos: entre $20 y $100 USD/mes según funciones y volumen.</p>
+    </div>
+    <div>
+      <h3>Planes sugeridos para el lanzamiento</h3>
+      <div class="plans">
+        <div class="plan">
+          <h4>Básico</h4>
+          <div class="price">$15–20 <small>USD/mes</small></div>
+          <div class="cop">≈ 60.000–80.000 COP/mes</div>
+          <ul class="checks">
+            <li>Canal Telegram</li>
+            <li>Agente de IA configurable, con guía por rubro</li>
+            <li>Google Calendar</li>
+            <li>Panel completo (reservas, clientes, reportes)</li>
+          </ul>
+        </div>
+        <div class="plan featured">
+          <span class="ribbon">Recomendado</span>
+          <h4>Pro</h4>
+          <div class="price">$25–30 <small>USD/mes</small></div>
+          <div class="cop">≈ 100.000–120.000 COP/mes</div>
+          <ul class="checks">
+            <li>Todo lo del plan Básico</li>
+            <li>Canal WhatsApp (Twilio)</li>
+            <li>Más de un usuario del equipo</li>
+            <li>Soporte prioritario</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout"><strong>Estrategia de lanzamiento sugerida:</strong> ofrecer un descuento de "cliente fundador" (30–40% durante los primeros meses, o el primer mes gratis) a cambio de feedback y autorización para usarlos como caso de referencia. Así se consiguen los primeros testimonios sin regalar el producto de forma indefinida.</div>
+    </div>
+  </section>
+
+  <!-- 16 -->
+  <section>
+    <span class="eyebrow">14. Preguntas frecuentes</span>
+    <h1>Preguntas frecuentes</h1>
+    <div class="faq"><h5>¿Necesito saber de tecnología para usarlo?</h5><p>No. Configurar el negocio y el agente se hace desde el panel web, sin escribir código.</p></div>
+    <div class="faq"><h5>¿Sirve para mi consultorio, veterinaria, taller o academia?</h5><p>Sí. Al crear la cuenta elegís tu rubro y la plataforma precarga servicios típicos. El agente, además, pregunta los datos propios de tu negocio (el motivo de la consulta, la mascota, la placa del vehículo, el nombre del estudiante) y los deja anotados en la reserva.</p></div>
+    <div class="faq"><h5>¿El agente puede dar un diagnóstico o recomendar un medicamento?</h5><p>No. En consultorios, fisioterapia y veterinarias es una regla fija de la plataforma: el agente solo agenda. Si alguien describe una emergencia, le indica que llame a la línea de emergencias o vaya a urgencias en vez de darle un turno.</p></div>
+    <div class="faq"><h5>¿Qué pasa si todavía no tengo WhatsApp Business?</h5><p>No hace falta para empezar. Se puede operar 100% con Telegram, que es gratuito, y activar WhatsApp más adelante cuando el negocio lo necesite.</p></div>
+    <div class="faq"><h5>¿El agente puede inventar un precio o un horario que no existe?</h5><p>No. Es una regla del sistema que no se puede desactivar: el agente solo puede responder con información real, cargada por el negocio.</p></div>
+    <div class="faq"><h5>¿Mis datos y los de mis clientes están seguros?</h5><p>Sí. Cada negocio tiene sus datos completamente aislados de los demás negocios que usan la plataforma, y las comunicaciones viajan cifradas.</p></div>
+    <div class="faq"><h5>¿Puedo instalarlo como una app en el celular?</h5><p>Sí, es una Progressive Web App: se instala desde el navegador en Android, iOS o computadora, sin pasar por ninguna tienda de aplicaciones.</p></div>
+    <div class="faq"><h5>¿Qué pasa si necesito cambiar algo que el agente no puede resolver?</h5><p>Cualquier persona del equipo puede responder manualmente desde el Inbox en cualquier momento, sin que eso interrumpa el resto del sistema.</p></div>
+  </section>
+
+  <!-- 17 -->
+  <section class="refs">
+    <div class="keep">
+      <span class="eyebrow">15. Referencias</span>
+      <h1>Referencias</h1>
+      <p class="note" style="padding-left:0;text-indent:0">Fuentes consultadas para la comparación de precios de mercado de la sección 13.</p>
+    </div>
+    <p>Capterra. (2026). <em>Booksy Biz software pricing, alternatives &amp; more</em>. Recuperado en septiembre de 2026, de https://www.capterra.com/p/142741/Booksy/</p>
+    <p>CitaFlow. (2026). <em>AI chatbot: WhatsApp &amp; Telegram bookings 24/7</em>. Recuperado en septiembre de 2026, de https://citaflow.com/en/chat-ai/</p>
+    <p>FinancesOnline. (2026). <em>Fresha vs Booksy 2026 comparison</em>. Recuperado en septiembre de 2026, de https://comparisons.financesonline.com/fresha-vs-booksy</p>
+    <p>ReservaSimple. (2026). <em>Mejores plataformas de turnos en Latinoamérica</em>. Recuperado en septiembre de 2026, de https://www.reservasimple.com/mejores-plataformas-gestionar-turnos-latinoamerica</p>
+    <p>SimplyBook.me. (2026). <em>Pricing</em>. Recuperado en septiembre de 2026, de https://simplybook.me/en/pricing</p>
+    <p>Twizzlo. (2026). <em>Fresha vs Booksy: Real pricing and fees compared</em>. Recuperado en septiembre de 2026, de https://twizzlo.com/articles/fresha-vs-booksy/</p>
+  </section>
+
+  <section>
+    <div class="cta">
+      <h2>¿Listo para empezar?</h2>
+      <p>Contactá a Nexora para activar tu negocio hoy mismo.</p>
+      <p class="links">Agencia: https://synflow-ia.vercel.app/<br />Correo: synflow.ia@gmail.com</p>
+    </div>
+    <p class="footnote">Manual de usuario de ReservasIA. Documento preparado con fines comerciales y de onboarding. Las imágenes de este documento fueron tomadas directamente de la interfaz real del proyecto, con datos de ejemplo de un negocio ficticio ("Barbería El Corte") para ilustrar cada funcionalidad.</p>
+  </section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.local
+.DS_Store
+npm-debug.log*
+coverage/
+.vite/
+.insforge/
+*.tsbuildinfo
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
+
+# Metodología/instrucciones del motor agéntico usado para desarrollar el
+# proyecto: no son parte del producto, se quedan solo en el entorno local.
+.cursorrules
+.windsurfrules
+AGENTS.md
+CLAUDE.md
+example.mcp.json
+PROMPT PARA CLOUD CODE*.md

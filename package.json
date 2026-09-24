@@ -1,0 +1,26 @@
+{
+  "name": "convivia",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "app",
+    "server",
+    "db-tests"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,app -c blue,green \"npm run dev -w server\" \"npm run dev -w app\"",
+    "build": "npm run build -w server && npm run build -w app",
+    "test": "npm run test -w db-tests && npm run test -w server && npm run test -w app",
+    "lint": "npm run lint -w server && npm run lint -w app && npm run typecheck:functions && npm run typecheck -w db-tests",
+    "insforge:migrate": "node scripts/check-insforge-project.mjs && npx -y @insforge/cli db migrations up --all",
+    "insforge:functions:deploy": "node scripts/check-insforge-project.mjs && node scripts/deploy-functions.mjs",
+    "test:db": "npm run test -w db-tests",
+    "typecheck:functions": "tsc -p functions/tsconfig.json"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
