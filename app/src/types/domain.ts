@@ -7,7 +7,7 @@ export type Permission =
   | "reservations.read" | "reservations.write" | "communications.read" | "communications.send" | "inbox.read"
   | "inbox.reply" | "documents.read" | "documents.write" | "agent.manage" | "integrations.manage" | "team.manage"
   | "settings.manage" | "audit.read" | "data.export" | "porteria.read" | "porteria.write"
-  | "assembly.read" | "assembly.write";
+  | "assembly.read" | "assembly.write" | "maintenance.read" | "maintenance.write" | "maintenance.approve";
 
 export interface Organization {
   id: string;
@@ -612,4 +612,86 @@ export interface UnitPersonOption {
   person_id: string;
   full_name: string;
   relation: UnitRelation;
+}
+
+export type AssetCategory =
+  | "elevator" | "water_pump" | "generator" | "gate" | "pool_equipment" | "fire_safety" | "electrical" | "other";
+export type AssetStatus = "active" | "retired";
+export type WorkOrderPriority = "low" | "normal" | "high" | "urgent";
+export type WorkOrderStatus =
+  | "reported" | "diagnosed" | "approved" | "assigned" | "in_progress" | "pending_validation" | "closed" | "cancelled";
+export type WorkOrderEventType =
+  | "created" | "diagnosed" | "approved" | "rejected" | "assigned" | "started" | "evidence_added" | "validated"
+  | "validation_rejected" | "closed" | "cancelled";
+
+export interface Vendor {
+  id: string;
+  organization_id: string;
+  name: string;
+  specialty: string | null;
+  phone: string | null;
+  email: string | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Asset {
+  id: string;
+  organization_id: string;
+  name: string;
+  category: AssetCategory;
+  location: string | null;
+  installed_on: string | null;
+  warranty_expires_on: string | null;
+  status: AssetStatus;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface MaintenanceSchedule {
+  id: string;
+  organization_id: string;
+  asset_id: string | null;
+  title: string;
+  frequency_months: number;
+  next_due_on: string;
+  last_done_on: string | null;
+  is_active: boolean;
+  notes: string | null;
+  assets?: { name: string } | null;
+}
+
+export interface WorkOrder {
+  id: string;
+  organization_id: string;
+  code: string;
+  asset_id: string | null;
+  pqrs_ticket_id: string | null;
+  title: string;
+  description: string;
+  priority: WorkOrderPriority;
+  status: WorkOrderStatus;
+  vendor_id: string | null;
+  assigned_to: string | null;
+  cost_estimate: number | null;
+  cost_final: number | null;
+  scheduled_at: string | null;
+  started_at: string | null;
+  closed_at: string | null;
+  created_at: string;
+  assets?: { name: string } | null;
+  vendors?: { name: string } | null;
+  pqrs_tickets?: { radicado: string } | null;
+}
+
+export interface WorkOrderEvent {
+  id: string;
+  event_type: WorkOrderEventType;
+  from_status: string | null;
+  to_status: string | null;
+  body: string | null;
+  cost: number | null;
+  actor_kind: "staff" | "system";
+  created_at: string;
 }

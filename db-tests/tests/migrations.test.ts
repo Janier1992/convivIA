@@ -6,21 +6,24 @@ import { createTestDb, migrationFiles, type TestDb } from "../helpers/db.js";
 // publicar por accidente funciones internas del compute service
 // (claim_outbound_messages, enqueue_payment_reminders, ...).
 const AUTHENTICATED_ALLOWLIST = [
-  "accept_organization_invite", "add_agenda_item", "add_gate_note", "book_area_reservation", "cancel_area_reservation",
-  "cancel_assembly", "cast_vote", "check_in_unit", "close_assembly", "create_assembly", "create_manual_charge",
-  "create_organization_with_owner", "create_pqrs_ticket", "create_visitor_authorization",
-  "current_user_email", "decide_area_reservation", "deliver_package", "enqueue_preview_message",
+  "accept_organization_invite", "add_agenda_item", "add_gate_note", "add_work_order_evidence", "approve_work_order",
+  "assign_work_order", "book_area_reservation", "cancel_area_reservation", "cancel_assembly", "cancel_work_order",
+  "cast_vote", "check_in_unit", "close_assembly", "close_work_order", "create_asset", "create_assembly",
+  "create_maintenance_schedule", "create_manual_charge", "create_organization_with_owner", "create_pqrs_ticket",
+  "create_vendor", "create_visitor_authorization", "create_work_order",
+  "current_user_email", "decide_area_reservation", "deliver_package", "diagnose_work_order", "enqueue_preview_message",
   "generate_interest_charges", "generate_monthly_charges", "get_admin_dashboard", "get_announcement_delivery",
   "get_area_slots", "get_assembly_attendees", "get_assembly_proxies", "get_assembly_quorum", "get_channel_status", "get_my_permissions", "get_portfolio",
   "get_portfolio_weekly_changes", "get_support_overview", "get_team_members", "get_unit_active_people",
   "get_unit_statement", "get_user_organization_ids", "get_vote_results", "has_org_permission",
   "has_permission_for_storage_key", "import_units_residents", "is_org_member", "is_org_owner", "is_support_admin",
-  "is_support_staff", "normalize_phone", "org_today", "preview_interest_charges", "preview_monthly_charges",
+  "is_support_staff", "mark_maintenance_schedule_done", "normalize_phone", "org_today", "preview_interest_charges", "preview_monthly_charges",
   "register_package", "register_payment", "register_proxy", "register_visitor_entry", "register_visitor_exit",
   "remove_attendee", "reprocess_document", "respond_pqrs_ticket", "reverse_payment", "review_payment",
   "revoke_proxy", "revoke_visitor_authorization", "rollback_import_batch", "search_document_chunks",
   "search_persons_basic", "send_announcement", "send_staff_reply", "set_area_reservation_status",
-  "set_assembly_minutes", "set_conversation_status", "start_assembly", "update_pqrs_ticket", "void_charge"
+  "set_assembly_minutes", "set_conversation_status", "start_assembly", "start_work_order", "update_asset",
+  "update_maintenance_schedule", "update_pqrs_ticket", "update_vendor", "void_charge"
 ].sort();
 
 // Las funciones internas de extensiones (soporte GiST de btree_gist) no

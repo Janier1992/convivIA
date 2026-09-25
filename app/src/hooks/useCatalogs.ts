@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { insforge } from "@/lib/insforgeClient";
-import type { CommonArea, PqrsCategory, Tower, Unit } from "@/types/domain";
+import type { Asset, CommonArea, PqrsCategory, Tower, Unit, Vendor } from "@/types/domain";
 import { useOrganization } from "./useOrganization";
 
 // Catálogos pequeños que usan varias pantallas (selectores de unidad,
@@ -72,6 +72,40 @@ export function usePqrsCategories() {
         .order("sort_order", { ascending: true });
       if (error) throw error;
       return data as PqrsCategory[];
+    }
+  });
+}
+
+export function useAssets() {
+  const { currentOrganizationId: orgId } = useOrganization();
+  return useQuery({
+    queryKey: ["assets", orgId],
+    enabled: !!orgId,
+    queryFn: async () => {
+      const { data, error } = await insforge.database
+        .from("assets")
+        .select("*")
+        .eq("organization_id", orgId)
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data as Asset[];
+    }
+  });
+}
+
+export function useVendors() {
+  const { currentOrganizationId: orgId } = useOrganization();
+  return useQuery({
+    queryKey: ["vendors", orgId],
+    enabled: !!orgId,
+    queryFn: async () => {
+      const { data, error } = await insforge.database
+        .from("vendors")
+        .select("*")
+        .eq("organization_id", orgId)
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data as Vendor[];
     }
   });
 }

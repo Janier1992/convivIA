@@ -17,6 +17,7 @@ import {
   UsersRound,
   Wallet,
   Receipt,
+  Wrench,
   type LucideIcon
 } from "lucide-react";
 import type { AdminDashboard, Permission } from "@/types/domain";
@@ -57,6 +58,7 @@ export const NAV_SECTIONS: NavSection[] = [
       },
       { to: "/dashboard/common-areas", label: "Zonas comunes", icon: Trees, permission: "reservations.read" },
       { to: "/dashboard/gatehouse", label: "Portería", icon: ShieldCheck, permission: "porteria.read" },
+      { to: "/dashboard/maintenance", label: "Mantenimiento", icon: Wrench, permission: "maintenance.read" },
       { to: "/dashboard/announcements", label: "Comunicados", icon: Megaphone, permission: "communications.read" }
     ]
   },

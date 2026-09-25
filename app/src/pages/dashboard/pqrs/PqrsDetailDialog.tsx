@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { PqrsEvent, PqrsTicket } from "@/types/domain";
+import { CreateWorkOrderDialog } from "../maintenance/CreateWorkOrderDialog";
 
 const EVENT_LABELS: Record<string, string> = {
   created: "Radicada", status_changed: "Cambio de estado", assigned: "Asignación", priority_changed: "Cambio de prioridad",
@@ -22,11 +23,13 @@ const EVENT_LABELS: Record<string, string> = {
 export function PqrsDetailDialog({ ticket, onOpenChange }: { ticket: PqrsTicket | null; onOpenChange: (open: boolean) => void }) {
   const { can } = useOrganization();
   const canWrite = can("pqrs.write");
+  const canReportMaintenance = can("maintenance.write");
   const queryClient = useQueryClient();
   const { data: categories = [] } = usePqrsCategories();
   const [response, setResponse] = useState("");
   const [closeAfter, setCloseAfter] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [createWorkOrderOpen, setCreateWorkOrderOpen] = useState(false);
 
   const { data: events = [] } = useQuery({
     queryKey: ["pqrs-events", ticket?.id],
@@ -86,6 +89,7 @@ export function PqrsDetailDialog({ ticket, onOpenChange }: { ticket: PqrsTicket 
   const isFinal = ticket.status === "answered" || ticket.status === "closed";
 
   return (
+    <>
     <Dialog open onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
@@ -102,6 +106,12 @@ export function PqrsDetailDialog({ ticket, onOpenChange }: { ticket: PqrsTicket 
               {PQRS_TYPE_LABELS[ticket.ticket_type]} · {ticket.requester_name ?? "Anónimo"}{ticket.units?.code ? ` · ${ticket.units.code}` : ""} · vía {CHANNEL_LABELS[ticket.channel] ?? ticket.channel} · {formatDateTime(ticket.created_at)}
             </p>
           </div>
+
+          {canReportMaintenance && (
+            <Button variant="outline" size="sm" onClick={() => setCreateWorkOrderOpen(true)}>
+              Crear orden de trabajo de mantenimiento
+            </Button>
+          )}
 
           {canWrite && !isFinal && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -174,5 +184,14 @@ export function PqrsDetailDialog({ ticket, onOpenChange }: { ticket: PqrsTicket 
         </div>
       </DialogContent>
     </Dialog>
+
+    <CreateWorkOrderDialog
+      open={createWorkOrderOpen}
+      onOpenChange={setCreateWorkOrderOpen}
+      pqrsTicketId={ticket.id}
+      prefillTitle={ticket.subject}
+      prefillDescription={ticket.description}
+    />
+    </>
   );
 }

@@ -2,6 +2,8 @@ import type {
   AgendaItemStatus,
   AssemblyStatus,
   AssemblyType,
+  AssetCategory,
+  AssetStatus,
   AudienceType,
   DocumentType,
   GateNoteCategory,
@@ -17,7 +19,9 @@ import type {
   UnitType,
   VisitorAuthStatus,
   VisitorLogKind,
-  VoteChoice
+  VoteChoice,
+  WorkOrderPriority,
+  WorkOrderStatus
 } from "@/types/domain";
 
 export type BadgeVariant = "default" | "accent" | "success" | "warning" | "destructive" | "muted";
@@ -209,6 +213,54 @@ export const CHANNEL_LABELS: Record<string, string> = {
   email: "Correo",
   in_person: "Presencial",
   phone: "Teléfono"
+};
+
+export const ASSET_CATEGORY_LABELS: Record<AssetCategory, string> = {
+  elevator: "Ascensor",
+  water_pump: "Bomba de agua",
+  generator: "Planta eléctrica",
+  gate: "Portón / talanquera",
+  pool_equipment: "Equipo de piscina",
+  fire_safety: "Contraincendios",
+  electrical: "Eléctrico",
+  other: "Otro"
+};
+
+export const ASSET_STATUS_LABELS: Record<AssetStatus, string> = {
+  active: "Activo",
+  retired: "De baja"
+};
+
+export const WORK_ORDER_PRIORITY: Record<WorkOrderPriority, { label: string; variant: BadgeVariant }> = {
+  low: { label: "Baja", variant: "muted" },
+  normal: { label: "Normal", variant: "default" },
+  high: { label: "Alta", variant: "warning" },
+  urgent: { label: "Urgente", variant: "destructive" }
+};
+
+export const WORK_ORDER_STATUS: Record<WorkOrderStatus, { label: string; variant: BadgeVariant }> = {
+  reported: { label: "Reportada", variant: "default" },
+  diagnosed: { label: "Diagnosticada", variant: "default" },
+  approved: { label: "Aprobada", variant: "accent" },
+  assigned: { label: "Asignada", variant: "accent" },
+  in_progress: { label: "En ejecución", variant: "accent" },
+  pending_validation: { label: "Por validar", variant: "warning" },
+  closed: { label: "Cerrada", variant: "success" },
+  cancelled: { label: "Cancelada", variant: "muted" }
+};
+
+export const WORK_ORDER_EVENT_LABELS: Record<string, string> = {
+  created: "Reportada",
+  diagnosed: "Diagnóstico",
+  approved: "Aprobada",
+  rejected: "Rechazada",
+  assigned: "Asignada",
+  started: "Iniciada",
+  evidence_added: "Evidencia registrada",
+  validated: "Validada",
+  validation_rejected: "Validación rechazada",
+  closed: "Cerrada",
+  cancelled: "Cancelada"
 };
 
 export function labelOf<T extends string>(map: Record<T, string>, value: T | null | undefined): string {
