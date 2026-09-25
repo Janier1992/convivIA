@@ -19,7 +19,8 @@ interfaz es responsiva.
 - [Requisitos](#requisitos)
 - [Instalación](#instalación)
 - [Configurar InsForge (base de datos + auth)](#configurar-insforge-base-de-datos--auth)
-- [Configurar OpenAI (asistente de IA)](#configurar-openai-asistente-de-ia)
+- [Configurar Gemini (IA para administradores)](#configurar-gemini-ia-para-administradores)
+- [Configurar OpenAI (asistente de IA para residentes)](#configurar-openai-asistente-de-ia-para-residentes)
 - [Configurar Telegram (canal recomendado, gratis)](#configurar-telegram-canal-recomendado-gratis)
 - [Configurar WhatsApp / Twilio (opcional, con costo)](#configurar-whatsapp--twilio-opcional-con-costo)
 - [Notificaciones push](#notificaciones-push)
@@ -92,6 +93,16 @@ reglamento (búsqueda de texto completo en español sobre Postgres).
   contra el censo — nunca confía en lo que el modelo diga sobre quién es el usuario.
 - Simulador de conversación en el propio dashboard, sin crear datos reales, para probar tono/instrucciones antes de
   publicarlas.
+
+### IA para administradores (equipo, no residentes)
+Un asistente aparte del que habla con los residentes: se usa desde el dashboard, bajo demanda (nunca corre solo),
+y siempre redacta sobre cifras que ya calculó la base de datos, nunca las inventa.
+- **Resumen del día**: qué requiere atención hoy, a partir del tablero.
+- **Cartera de la semana**: qué cambió en los últimos 7 días (recaudo, unidades que entraron en mora, unidades que
+  se pusieron al día), calculado por `get_portfolio_weekly_changes()` en la base de datos.
+- **PQRS a priorizar**: PQRS abiertas agrupadas por cercanía a su vencimiento (vencidas, vencen hoy, vencen en 48h).
+- **Redactar comunicado**: borrador a partir de notas del administrador, con `[COMPLETAR: ...]` cuando falta un dato
+  concreto en vez de inventarlo.
 
 ### Canales de mensajería
 - **Telegram** (recomendado): cada copropiedad conecta su propio bot (gratis, vía
@@ -290,14 +301,31 @@ npx @insforge/cli functions deploy <slug> --file functions/<slug>.ts
 ```
 
 Cada función necesita estos secretos en InsForge (`npx @insforge/cli secrets add <KEY> <VALUE>`): `INSFORGE_BASE_URL`
-y `API_KEY` (reservados, ya provistos por InsForge), más `OPENAI_API_KEY` y `OPENAI_MODEL`.
+y `API_KEY` (reservados, ya provistos por InsForge), más `GEMINI_API_KEY` (ver abajo) para `ai-assist`.
 
 ---
 
-## Configurar OpenAI (asistente de IA)
+## Configurar Gemini (IA para administradores)
+
+`ai-assist` (resumen del día, cartera de la semana, PQRS a priorizar, redactar comunicado) usa **Google Gemini**
+por defecto, vía la capa de compatibilidad de Gemini con la API de OpenAI — se eligió para arrancar sin costo.
+
+1. Generá una API key gratis en [Google AI Studio](https://aistudio.google.com/apikey).
+2. Cargala como secreto de InsForge: `npx @insforge/cli secrets add GEMINI_API_KEY <tu-api-key>`.
+3. Listo: no hace falta ninguna otra variable. El modelo por defecto es `gemini-2.0-flash`.
+
+Si más adelante preferís OpenAI (u otro proveedor compatible) para `ai-assist`, no hace falta tocar código: cargá
+`OPENAI_API_KEY` (y opcionalmente `OPENAI_BASE_URL` / `OPENAI_MODEL`) como secretos de InsForge y el código los usa
+en vez de Gemini automáticamente.
+
+Esto es independiente del asistente que habla con los residentes por Telegram/WhatsApp (`server/`), que sigue
+usando OpenAI — ver la sección siguiente.
+
+## Configurar OpenAI (asistente de IA para residentes)
 
 1. Generá una API key en [platform.openai.com](https://platform.openai.com/api-keys).
-2. Completá `OPENAI_API_KEY` en `.env` **y** como secreto de InsForge (lo usan tanto `server/` como `ai-assist`).
+2. Completá `OPENAI_API_KEY` en `.env` (lo usa `server/`, el compute service que atiende a los residentes por
+   Telegram/WhatsApp).
 3. `OPENAI_MODEL` controla el modelo usado por el asistente desde un único lugar.
 4. `OPENAI_BASE_URL` es opcional: permite apuntar a un endpoint compatible (ej. OpenRouter) para desarrollo sin
    costo de OpenAI directo.
@@ -432,6 +460,8 @@ npm run build
       residente y novedades de turno, con permiso `porteria.*` propio y capacidad activable en el asistente.
 - [x] PWA instalable, responsiva en mobile y desktop.
 - [x] Notificaciones push (Web Push + VAPID) al equipo cuando el asistente registra algo que requiere revisión.
+- [x] IA para administradores (resumen del día, cartera de la semana, PQRS a priorizar, redactar comunicado),
+      separada del asistente de residentes, siempre sobre cifras deterministas de la base de datos.
 - [x] Tests de aislamiento multi-tenant y RLS automatizados sobre PGlite (no requieren un proyecto real).
 - [x] Logging estructurado sin secretos, rate limiting, validaciones con Zod.
 

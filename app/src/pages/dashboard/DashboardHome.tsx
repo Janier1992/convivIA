@@ -10,6 +10,8 @@ import { QueryErrorState } from "@/components/QueryErrorState";
 import { SetupChecklist } from "./home/SetupChecklist";
 import { DailyBriefCard } from "./home/DailyBriefCard";
 import { RecentPqrsCard } from "./home/RecentPqrsCard";
+import { WeeklyPortfolioBriefCard } from "./home/WeeklyPortfolioBriefCard";
+import { PqrsPriorityBriefCard } from "./home/PqrsPriorityBriefCard";
 
 function variation(current: number, previous: number): string | undefined {
   if (!previous) return undefined;
@@ -119,6 +121,13 @@ export function DashboardHome() {
         <DailyBriefCard />
         {can("pqrs.read") ? <RecentPqrsCard /> : null}
       </div>
+
+      {(can("finance.read") || can("pqrs.read")) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {can("finance.read") ? <WeeklyPortfolioBriefCard /> : null}
+          {can("pqrs.read") ? <PqrsPriorityBriefCard /> : null}
+        </div>
+      )}
 
       {data && data.units_total === 0 && (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">

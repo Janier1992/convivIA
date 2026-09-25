@@ -17,8 +17,10 @@ nicho de conjuntos residenciales en Colombia, no por facilidad de construcción.
 - **Portería y visitantes** (sección 4.6 del prompt). Ver PRP dedicado.
 - **Menú lateral en acordeón** (mejora de interfaz, no funcional): cada módulo principal se despliega y pliega
   el resto, en escritorio y celular.
+- **P1.5 IA para administradores** (cartera de la semana + PQRS a priorizar, ver detalle abajo). Sobre Gemini
+  (Google AI Studio) como proveedor inicial, intercambiable por variables de entorno sin tocar código.
 
-## Actualización: dos hallazgos adicionales tras revisar de nuevo la sección 10 (IA para administradores)
+## Retomado: dos hallazgos adicionales tras revisar de nuevo la sección 10 (IA para administradores)
 
 Al revisar `functions/ai-assist.ts` para confirmar qué tanto de la sección 10 del prompt ("IA para
 administradores") ya existe, encontré que solo **2 de las 7 capacidades que describe el prompt están
@@ -38,6 +40,14 @@ esperar ningún módulo nuevo, porque los datos que necesitan ya existen en cart
 Esto es más rápido de construir que asamblea o mantenimiento (no requiere tablas nuevas) y encaja
 directamente con lo que el prompt describe como el valor de la IA "para administradores", que hoy está casi
 vacío frente a lo que describe. Lo subo de prioridad: **P1.5**, entre asamblea y mantenimiento.
+
+**Construido**: las dos capacidades ya están hechas. `get_portfolio_weekly_changes()` (nueva función
+determinista) calcula recaudo, facturación, unidades que entraron en mora y unidades que se pusieron al día en
+los últimos 7 días; `ai-assist` gana las acciones `portfolio_weekly_brief` y `pqrs_priority_brief` (esta última
+agrupa las PQRS abiertas por vencidas / vencen hoy / vencen en 48h antes de pedirle a la IA que redacte, así
+que la priorización en sí es determinista, no depende del modelo). Ambas quedaron como tarjetas en Inicio,
+junto a "Resumen del día". Proveedor: Gemini (`GEMINI_API_KEY`, gratis en Google AI Studio), intercambiable por
+OpenAI u otro compatible con solo cambiar variables de entorno, sin tocar código — ver README.
 
 También noté, revisando el núcleo de copropiedad (sección 4.1), que **vehículos y mascotas** no son
 entidades propias: la placa del vehículo hoy vive como texto libre dentro de portería (autorizaciones y
