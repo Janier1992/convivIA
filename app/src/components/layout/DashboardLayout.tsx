@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Building, LifeBuoy, LogOut, Menu, X } from "lucide-react";
+import { Building, ChevronDown, LifeBuoy, LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -12,6 +12,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { NAV_SECTIONS, type NavItem } from "./navigation";
+import type { AdminDashboard } from "@/types/domain";
+
+/** Coincide con la ruta activa igual que NavLink, para saber qué módulo abrir. */
+function isItemActive(item: NavItem, pathname: string): boolean {
+  return item.end ? pathname === item.to : pathname === item.to || pathname.startsWith(`${item.to}/`);
+}
+
+function sectionForPath(pathname: string): string | null {
+  return NAV_SECTIONS.find((section) => section.items.some((item) => isItemActive(item, pathname)))?.title ?? null;
+}
 
 function Brand({ name, logoUrl }: { name: string; logoUrl: string | null | undefined }) {
   return (
@@ -28,6 +38,23 @@ function Brand({ name, logoUrl }: { name: string; logoUrl: string | null | undef
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">ConvivIA</p>
       </div>
     </div>
+  );
+}
+
+function SectionHeader({ title, open, count, onToggle }: { title: string; open: boolean; count: number; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={open}
+      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+    >
+      <span className="flex-1 truncate text-left">{title}</span>
+      {!open && count > 0 && (
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning" aria-label={`${count} pendientes en ${title}`} />
+      )}
+      <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform duration-200", open ? "rotate-0" : "-rotate-90")} aria-hidden />
+    </button>
   );
 }
 
@@ -64,12 +91,27 @@ export function DashboardLayout() {
   const location = useLocation();
   const brandName = profile?.display_name || currentOrganization?.name || "ConvivIA";
 
-  useEffect(() => setMobileNavOpen(false), [location.pathname]);
+  // El módulo del que se navega queda abierto de entrada; los demás, plegados.
+  const [openSection, setOpenSection] = useState<string | null>(() => sectionForPath(location.pathname));
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+    setOpenSection(sectionForPath(location.pathname));
+  }, [location.pathname]);
+
+  function toggleSection(title: string) {
+    setOpenSection((current) => (current === title ? null : title));
+  }
 
   const sections = NAV_SECTIONS.map((section) => ({
     ...section,
     items: section.items.filter((item) => !item.permission || can(item.permission))
   })).filter((section) => section.items.length > 0);
+
+  function sectionBadgeTotal(items: NavItem[], dashboard: AdminDashboard | undefined) {
+    if (!dashboard) return 0;
+    return items.reduce((sum, item) => sum + (item.badge ? item.badge(dashboard) : 0), 0);
+  }
 
   const sidebar = (
     <>
@@ -97,15 +139,29 @@ export function DashboardLayout() {
         </div>
       )}
 
-      <nav className="flex-1 space-y-5 overflow-y-auto p-3" aria-label="Navegación principal">
-        {sections.map((section) => (
-          <div key={section.title} className="space-y-1">
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{section.title}</p>
-            {section.items.map((item) => (
-              <NavEntry key={item.to} item={item} count={dashboard && item.badge ? item.badge(dashboard) : 0} />
-            ))}
-          </div>
-        ))}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="Navegación principal">
+        {sections.map((section) => {
+          const open = openSection === section.title;
+          return (
+            <div key={section.title}>
+              <SectionHeader
+                title={section.title}
+                open={open}
+                count={sectionBadgeTotal(section.items, dashboard)}
+                onToggle={() => toggleSection(section.title)}
+              />
+              <div className={cn("grid transition-[grid-template-rows] duration-200 ease-in-out", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}>
+                <div className="overflow-hidden">
+                  <div className="space-y-1 py-1">
+                    {section.items.map((item) => (
+                      <NavEntry key={item.to} item={item} count={dashboard && item.badge ? item.badge(dashboard) : 0} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
         {isSupportStaff && (
           <NavEntry item={{ to: "/soporte", label: "Soporte ConvivIA", icon: LifeBuoy }} count={0} />
         )}
