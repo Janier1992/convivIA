@@ -15,6 +15,36 @@ nicho de conjuntos residenciales en Colombia, no por facilidad de construcción.
 ## P0. Ya construido en esta ronda
 
 - **Portería y visitantes** (sección 4.6 del prompt). Ver PRP dedicado.
+- **Menú lateral en acordeón** (mejora de interfaz, no funcional): cada módulo principal se despliega y pliega
+  el resto, en escritorio y celular.
+
+## Actualización: dos hallazgos adicionales tras revisar de nuevo la sección 10 (IA para administradores)
+
+Al revisar `functions/ai-assist.ts` para confirmar qué tanto de la sección 10 del prompt ("IA para
+administradores") ya existe, encontré que solo **2 de las 7 capacidades que describe el prompt están
+construidas**: `daily_brief` ("Resume qué requiere atención hoy") y `draft_announcement` ("Redacta un
+comunicado..."). El resto (cartera de la semana, PQRS por vencer, resumen de actas, mantenimientos
+pendientes, contratos por vencer) no existe todavía. Dos de esas faltantes se pueden construir **ya**, sin
+esperar ningún módulo nuevo, porque los datos que necesitan ya existen en cartera y PQRS:
+
+- **"¿Qué cambió en la cartera esta semana?"**: comparar el estado de cartera actual contra el de hace 7 días
+  (recaudo, nuevas unidades en mora, unidades que salieron de mora). Es prácticamente una consulta SQL nueva
+  más una redacción corta por IA sobre esos números, mismo patrón que `daily_brief`.
+- **"Clasifica las PQRS abiertas y detecta las que están cerca del vencimiento"**: hoy la página de PQRS ya
+  muestra el vencimiento por fila, pero no hay una vista agrupada que priorice "esto se vence en menos de 24h"
+  para el administrador. Es determinista (una consulta SQL ordenada por `due_at`), la IA es opcional para
+  redactar el resumen.
+
+Esto es más rápido de construir que asamblea o mantenimiento (no requiere tablas nuevas) y encaja
+directamente con lo que el prompt describe como el valor de la IA "para administradores", que hoy está casi
+vacío frente a lo que describe. Lo subo de prioridad: **P1.5**, entre asamblea y mantenimiento.
+
+También noté, revisando el núcleo de copropiedad (sección 4.1), que **vehículos y mascotas** no son
+entidades propias: la placa del vehículo hoy vive como texto libre dentro de portería (autorizaciones y
+bitácora), sin un registro por unidad con historial (marca, color, más de un vehículo por unidad) ni mascotas
+en absoluto. Es una ampliación pequeña y de bajo riesgo sobre lo que ya existe, no un módulo nuevo: dos
+tablas (`unit_vehicles`, `unit_pets`) colgando de `units`, sin RPCs complejas. La subo como candidata de bajo
+esfuerzo para intercalar entre módulos más grandes, no como prioridad por sí sola.
 
 ## P1. Asamblea y gobierno (sección 4.9)
 
