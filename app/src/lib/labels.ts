@@ -1,7 +1,9 @@
 import type {
   AudienceType,
   DocumentType,
+  GateNoteCategory,
   OrganizationRole,
+  PackageStatus,
   PaymentMethod,
   PaymentStatus,
   PqrsPriority,
@@ -9,7 +11,9 @@ import type {
   PqrsType,
   ReservationStatus,
   UnitRelation,
-  UnitType
+  UnitType,
+  VisitorAuthStatus,
+  VisitorLogKind
 } from "@/types/domain";
 
 export type BadgeVariant = "default" | "accent" | "success" | "warning" | "destructive" | "muted";
@@ -111,6 +115,33 @@ export const RESERVATION_STATUS: Record<ReservationStatus, { label: string; vari
   cancelled: { label: "Cancelada", variant: "muted" },
   completed: { label: "Cumplida", variant: "default" },
   no_show: { label: "No asistió", variant: "destructive" }
+};
+
+export const VISITOR_AUTH_STATUS: Record<VisitorAuthStatus, { label: string; variant: BadgeVariant }> = {
+  pending: { label: "Pendiente de ingreso", variant: "warning" },
+  used: { label: "Ya ingresó", variant: "success" },
+  expired: { label: "Vencida", variant: "muted" },
+  revoked: { label: "Anulada", variant: "destructive" }
+};
+
+export const VISITOR_LOG_KIND_LABELS: Record<VisitorLogKind, string> = {
+  visitor: "Visita",
+  service: "Proveedor / servicio",
+  delivery: "Domicilio",
+  other: "Otro"
+};
+
+export const PACKAGE_STATUS: Record<PackageStatus, { label: string; variant: BadgeVariant }> = {
+  received: { label: "Por reclamar", variant: "warning" },
+  delivered: { label: "Entregado", variant: "success" },
+  returned: { label: "Devuelto", variant: "muted" }
+};
+
+export const GATE_NOTE_CATEGORY_LABELS: Record<GateNoteCategory, string> = {
+  security: "Seguridad",
+  maintenance: "Mantenimiento",
+  general: "General",
+  incident: "Incidente"
 };
 
 export const AUDIENCE_LABELS: Record<AudienceType, string> = {

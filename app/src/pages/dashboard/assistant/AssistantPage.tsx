@@ -24,6 +24,11 @@ const CAPABILITY_FIELDS: { key: keyof AgentConfig; label: string; hint: string }
   { key: "pqrs_enabled", label: "Radicar y consultar PQRS", hint: "" },
   { key: "reservations_enabled", label: "Reservar zonas comunes", hint: "" },
   { key: "documents_enabled", label: "Buscar en documentos", hint: "Reglamento, manual de convivencia, actas..." },
+  {
+    key: "visitors_enabled",
+    label: "Preautorizar visitantes y consultar paquetes",
+    hint: "El residente avisa una visita esperada desde el chat y consulta sus paquetes en portería."
+  },
   { key: "handoff_enabled", label: "Transferir a una persona", hint: "El residente puede pedir hablar con el equipo." }
 ];
 
@@ -62,6 +67,7 @@ export function AssistantPage() {
             pqrs_enabled: draft.pqrs_enabled,
             reservations_enabled: draft.reservations_enabled,
             documents_enabled: draft.documents_enabled,
+            visitors_enabled: draft.visitors_enabled,
             handoff_enabled: draft.handoff_enabled
           })
           .eq("id", draft.id)
