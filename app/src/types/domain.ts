@@ -6,7 +6,8 @@ export type Permission =
   | "residents.read" | "residents.write" | "finance.read" | "finance.write" | "pqrs.read" | "pqrs.write"
   | "reservations.read" | "reservations.write" | "communications.read" | "communications.send" | "inbox.read"
   | "inbox.reply" | "documents.read" | "documents.write" | "agent.manage" | "integrations.manage" | "team.manage"
-  | "settings.manage" | "audit.read" | "data.export" | "porteria.read" | "porteria.write";
+  | "settings.manage" | "audit.read" | "data.export" | "porteria.read" | "porteria.write"
+  | "assembly.read" | "assembly.write";
 
 export interface Organization {
   id: string;
@@ -48,6 +49,7 @@ export interface PropertyProfile {
   rounding_unit: number;
   payment_reminder_days_before: number;
   payment_reminder_days_after: number;
+  max_proxies_per_attorney: number | null;
 }
 
 export interface Tower {
@@ -362,6 +364,7 @@ export interface AgentConfig {
   documents_enabled: boolean;
   handoff_enabled: boolean;
   visitors_enabled: boolean;
+  assembly_enabled: boolean;
 }
 
 export interface AgentRule {
@@ -511,4 +514,102 @@ export interface GateNote {
   note: string;
   shift: string | null;
   created_at: string;
+}
+
+export type AssemblyType = "ordinaria" | "extraordinaria";
+export type AssemblyStatus = "draft" | "in_progress" | "closed" | "cancelled";
+export type AgendaItemStatus = "pending" | "voting" | "closed";
+export type ProxyStatus = "accepted" | "revoked";
+export type VoteChoice = "a_favor" | "en_contra" | "abstencion";
+
+export interface Assembly {
+  id: string;
+  organization_id: string;
+  title: string;
+  assembly_type: AssemblyType;
+  status: AssemblyStatus;
+  scheduled_at: string;
+  location: string | null;
+  first_call_quorum_pct: number;
+  second_call_quorum_pct: number | null;
+  agenda_notes: string | null;
+  convened_at: string | null;
+  closed_at: string | null;
+  minutes_document_id: string | null;
+  created_at: string;
+}
+
+export interface AssemblyAgendaItem {
+  id: string;
+  organization_id: string;
+  assembly_id: string;
+  position: number;
+  title: string;
+  description: string | null;
+  requires_vote: boolean;
+  status: AgendaItemStatus;
+}
+
+export interface Proxy {
+  id: string;
+  organization_id: string;
+  assembly_id: string;
+  unit_id: string;
+  grantor_person_id: string;
+  attorney_person_id: string;
+  status: ProxyStatus;
+  created_at: string;
+  units?: { code: string } | null;
+}
+
+export interface AssemblyAttendee {
+  id: string;
+  organization_id: string;
+  assembly_id: string;
+  unit_id: string;
+  person_id: string;
+  proxy_id: string | null;
+  coefficient_pct: number;
+  checked_in_at: string;
+  units?: { code: string } | null;
+}
+
+export interface Vote {
+  id: string;
+  organization_id: string;
+  assembly_id: string;
+  agenda_item_id: string;
+  unit_id: string;
+  choice: VoteChoice;
+  coefficient_pct: number;
+  cast_at: string;
+}
+
+export interface AssemblyQuorum {
+  assembly_id: string;
+  total_units: number;
+  total_coefficient_pct: number;
+  present_units: number;
+  present_coefficient_pct: number;
+  first_call_quorum_pct: number;
+  second_call_quorum_pct: number | null;
+  reached_first_call: boolean;
+  reached_second_call: boolean;
+}
+
+export interface VoteResults {
+  agenda_item_id: string;
+  a_favor_pct: number;
+  en_contra_pct: number;
+  abstencion_pct: number;
+  a_favor_count: number;
+  en_contra_count: number;
+  abstencion_count: number;
+  total_coefficient_voted_pct: number;
+}
+
+export interface UnitPersonOption {
+  person_id: string;
+  full_name: string;
+  relation: UnitRelation;
 }

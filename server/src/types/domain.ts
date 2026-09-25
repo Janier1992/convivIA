@@ -48,6 +48,7 @@ export interface AgentConfig {
   documents_enabled: boolean;
   handoff_enabled: boolean;
   visitors_enabled: boolean;
+  assembly_enabled: boolean;
 }
 
 export interface AgentRule {

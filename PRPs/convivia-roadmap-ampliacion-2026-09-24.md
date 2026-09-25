@@ -6,8 +6,8 @@ operativo digital de la copropiedad", no solo cartera + PQRS + reservas + asiste
 
 De ese prompt ya está construido: núcleo de copropiedad, cartera y recaudo, PQRS, reservas de zonas comunes,
 comunicaciones, documentos con RAG, el asistente contextual con sus guardrails (patrón proponer → confirmar,
-identidad verificada, RLS multi-tenant, auditoría en base de datos), y ahora portería y visitantes (ver
-`convivia-porteria-2026-09-24.md`).
+identidad verificada, RLS multi-tenant, auditoría en base de datos), portería y visitantes (ver
+`convivia-porteria-2026-09-24.md`), IA para administradores sobre Gemini y ahora asamblea y gobierno (ver P1).
 
 Lo que sigue es una priorización honesta de lo que falta, ordenada por impacto para "captar clientes" del
 nicho de conjuntos residenciales en Colombia, no por facilidad de construcción.
@@ -19,6 +19,7 @@ nicho de conjuntos residenciales en Colombia, no por facilidad de construcción.
   el resto, en escritorio y celular.
 - **P1.5 IA para administradores** (cartera de la semana + PQRS a priorizar, ver detalle abajo). Sobre Gemini
   (Google AI Studio) como proveedor inicial, intercambiable por variables de entorno sin tocar código.
+- **P1 Asamblea y gobierno** (sección 4.9 del prompt, ver detalle abajo).
 
 ## Retomado: dos hallazgos adicionales tras revisar de nuevo la sección 10 (IA para administradores)
 
@@ -62,15 +63,28 @@ esfuerzo para intercalar entre módulos más grandes, no como prioridad por sí 
 convocatoria, quórum, poderes, votación por coeficiente, acta. Hoy no hay ninguna tabla para esto; es la
 brecha más citada frente a competidores que sí lo resuelven.
 
-Entidades propuestas: `assemblies`, `assembly_attendees`, `proxies` (poderes), `assembly_agenda_items`,
-`votes`, `assembly_minutes`. Reglas clave:
-- El quórum y la mayoría necesaria se calculan sobre coeficientes reales de `units`, nunca a mano.
-- Un poder (`proxies`) tiene un dueño, un apoderado y un límite de unidades que puede representar según el
-  reglamento (configurable, no hardcodeado: el prompt es explícito en no fijar interpretaciones jurídicas
-  como universales).
-- El acta final es un documento versionado (reutiliza `documents`), no texto libre perdido en un correo.
-- El asistente puede resumir actas anteriores y explicar el proceso, pero nunca certifica quórum ni resultado
-  de una votación: eso lo calcula la base de datos.
+**Construido**: `assemblies`, `assembly_agenda_items`, `proxies` (poderes), `assembly_attendees` y `votes`, con
+7 RPCs de escritura (`create_assembly`, `add_agenda_item`, `start_assembly`, `close_assembly`,
+`cancel_assembly`, `register_proxy`, `revoke_proxy`, `check_in_unit`, `remove_attendee`, `cast_vote`,
+`set_assembly_minutes`) y 4 de consulta (`get_assembly_quorum`, `get_vote_results`, `get_assembly_attendees`,
+`get_assembly_proxies`). Reglas clave, tal como las pedía el prompt:
+- El quórum se calcula **siempre** en la base de datos sobre coeficientes reales de `units`
+  (`get_assembly_quorum`), nunca a mano; el coeficiente de cada unidad presente queda congelado al momento del
+  registro de asistencia, así una corrección posterior no reescribe un quórum ya vivido.
+- Un poder (`proxies`) tiene un dueño, un apoderado y un límite de unidades que puede representar
+  **configurable por copropiedad** (`property_profiles.max_proxies_per_attorney`, nulo = sin límite), nunca
+  hardcodeado como una interpretación jurídica universal.
+- Los resultados de votación (`get_vote_results`) son números crudos por coeficiente (a favor / en contra /
+  abstención); el sistema **nunca certifica** si una decisión "quedó aprobada", porque el tipo de mayoría
+  (simple, absoluta, calificada) depende del reglamento y del tema, no es algo que deba fijar el software.
+- El acta final es un documento versionado (reutiliza `documents`, `doc_type = 'assembly_minutes'`, ya existía
+  en el esquema), vinculado con `set_assembly_minutes`, no texto libre perdido en un correo.
+- El asistente de IA solo informa fecha, lugar y orden del día de la próxima asamblea
+  (`consultar_proxima_asamblea`, capacidad `assembly_enabled`); nunca calcula ni menciona quórum ni resultados
+  de votación, tal como pide explícitamente el prompt maestro.
+- Nueva pantalla `/dashboard/assembly` (lista + detalle con pestañas: orden del día, poderes, asistencia,
+  votación, acta) y permiso `assembly.*` propio (owner/admin/assistant/council con escritura, auditor solo
+  lectura).
 
 ## P2. Mantenimiento de activos (sección 4.8)
 

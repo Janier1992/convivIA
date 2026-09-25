@@ -1,4 +1,7 @@
 import type {
+  AgendaItemStatus,
+  AssemblyStatus,
+  AssemblyType,
   AudienceType,
   DocumentType,
   GateNoteCategory,
@@ -13,7 +16,8 @@ import type {
   UnitRelation,
   UnitType,
   VisitorAuthStatus,
-  VisitorLogKind
+  VisitorLogKind,
+  VoteChoice
 } from "@/types/domain";
 
 export type BadgeVariant = "default" | "accent" | "success" | "warning" | "destructive" | "muted";
@@ -142,6 +146,30 @@ export const GATE_NOTE_CATEGORY_LABELS: Record<GateNoteCategory, string> = {
   maintenance: "Mantenimiento",
   general: "General",
   incident: "Incidente"
+};
+
+export const ASSEMBLY_STATUS: Record<AssemblyStatus, { label: string; variant: BadgeVariant }> = {
+  draft: { label: "Borrador", variant: "muted" },
+  in_progress: { label: "En curso", variant: "accent" },
+  closed: { label: "Cerrada", variant: "success" },
+  cancelled: { label: "Cancelada", variant: "destructive" }
+};
+
+export const ASSEMBLY_TYPE_LABELS: Record<AssemblyType, string> = {
+  ordinaria: "Ordinaria",
+  extraordinaria: "Extraordinaria"
+};
+
+export const AGENDA_ITEM_STATUS: Record<AgendaItemStatus, { label: string; variant: BadgeVariant }> = {
+  pending: { label: "Pendiente", variant: "muted" },
+  voting: { label: "En votación", variant: "accent" },
+  closed: { label: "Cerrado", variant: "success" }
+};
+
+export const VOTE_CHOICE_LABELS: Record<VoteChoice, string> = {
+  a_favor: "A favor",
+  en_contra: "En contra",
+  abstencion: "Abstención"
 };
 
 export const AUDIENCE_LABELS: Record<AudienceType, string> = {
