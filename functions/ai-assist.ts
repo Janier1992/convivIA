@@ -5,6 +5,9 @@
 //   - daily_brief: resumen de lo que requiere atención hoy.
 //   - portfolio_weekly_brief: qué cambió en la cartera en los últimos 7 días.
 //   - pqrs_priority_brief: PQRS abiertas agrupadas por cercanía al vencimiento.
+//   - maintenance_priority_brief: cronogramas vencidos/próximos y órdenes de
+//     trabajo esperando una decisión (aprobación o validación).
+//   - assembly_minutes_summary: resumen del acta de la última asamblea.
 // La IA redacta e interpreta; las cifras salen siempre de una función
 // determinista de la base de datos (RLS del usuario) y nunca se inventan: el
 // borrador marca [COMPLETAR: ...] cuando faltan datos y los resúmenes
@@ -223,6 +226,96 @@ async function pqrsPriorityBrief(client: ReturnType<typeof createClient>, organi
   );
 }
 
+const MAINTENANCE_PRIORITY_RULES = `Eres el asistente del equipo de administración de una copropiedad en Colombia.
+Recibes un JSON con mantenimiento preventivo vencido/próximo y órdenes de trabajo esperando una decisión
+(fuente: get_maintenance_priority_brief).
+Reglas:
+- Usa SOLO los datos del JSON; no inventes activos, órdenes, fechas ni cifras.
+- Escribe un párrafo de máximo 4 líneas priorizando en este orden: cronogramas_vencidos, luego
+  ordenes_urgentes_abiertas, luego ordenes_esperando_aprobacion y ordenes_esperando_validacion, luego
+  cronogramas_proximos. Cita el activo o el código de la orden. Si un grupo está vacío, no lo menciones.
+- Si todos los grupos están vacíos, dilo como buena noticia en una sola línea.
+- Español colombiano, texto plano, máximo 600 caracteres.`;
+
+async function maintenancePriorityBrief(client: ReturnType<typeof createClient>, organizationId: string) {
+  const { data: facts, error } = await client.database.rpc("get_maintenance_priority_brief", { p_organization_id: organizationId });
+  if (error || !facts) return jsonResponse({ error: { code: "FORBIDDEN" } }, 403);
+
+  const f = facts as Record<string, unknown[]>;
+  const groupKeys = [
+    "cronogramas_vencidos",
+    "cronogramas_proximos",
+    "ordenes_esperando_aprobacion",
+    "ordenes_esperando_validacion",
+    "ordenes_urgentes_abiertas"
+  ];
+  const isEmpty = groupKeys.every((k) => Array.isArray(f[k]) && f[k].length === 0);
+
+  let text = "No hay mantenimiento vencido ni próximo, ni órdenes esperando una decisión.";
+  if (!isEmpty) {
+    const completion = await aiClient().chat.completions.create({
+      model: aiModel(),
+      temperature: 0.2,
+      messages: [
+        { role: "system", content: MAINTENANCE_PRIORITY_RULES },
+        { role: "user", content: JSON.stringify(facts) }
+      ]
+    });
+    text = completion.choices[0]?.message?.content ?? text;
+  }
+  return jsonResponse(
+    { text, as_of: (facts as { as_of?: string }).as_of ?? new Date().toISOString(), source: "get_maintenance_priority_brief", facts },
+    200
+  );
+}
+
+const MINUTES_SUMMARY_RULES = `Eres el asistente del equipo de administración de una copropiedad en Colombia.
+Recibes el texto completo (o parcial, si es muy largo) del acta de la asamblea más reciente que ya tiene acta
+cargada.
+Reglas:
+- Resume SOLO lo que dice el texto. No inventes decisiones, cifras, nombres ni acuerdos que no estén escritos ahí.
+- Estructura en texto plano con dos secciones: "TEMAS TRATADOS" (viñetas breves) y "DECISIONES / COMPROMISOS"
+  (viñetas breves, con responsable solo si el acta lo menciona).
+- Si el texto parece cortado o incompleto, dilo en una última línea.
+- Español colombiano, máximo 1.200 caracteres. Este es un resumen generado por IA para orientación rápida: la
+  administración debe confirmar cualquier decisión contra el acta original antes de comunicarla como oficial.`;
+
+async function assemblyMinutesSummary(client: ReturnType<typeof createClient>, organizationId: string) {
+  const { data: facts, error } = await client.database.rpc("get_latest_assembly_minutes", { p_organization_id: organizationId });
+  if (error || !facts) return jsonResponse({ error: { code: "FORBIDDEN" } }, 403);
+
+  const result = facts as { found: boolean; assembly?: unknown; document?: unknown; full_text?: string };
+  if (!result.found) {
+    return jsonResponse({ found: false, text: "Todavía no hay ninguna asamblea con acta cargada." }, 200);
+  }
+  if (!result.full_text || result.full_text.trim().length < 20) {
+    return jsonResponse(
+      { found: true, assembly: result.assembly, document: result.document, requires_review: true, text: "El acta más reciente no tiene texto legible todavía." },
+      200
+    );
+  }
+
+  const completion = await aiClient().chat.completions.create({
+    model: aiModel(),
+    temperature: 0.2,
+    messages: [
+      { role: "system", content: MINUTES_SUMMARY_RULES },
+      { role: "user", content: result.full_text }
+    ]
+  });
+  return jsonResponse(
+    {
+      found: true,
+      text: completion.choices[0]?.message?.content ?? "",
+      assembly: result.assembly,
+      document: result.document,
+      requires_review: true,
+      source: "get_latest_assembly_minutes"
+    },
+    200
+  );
+}
+
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS_HEADERS });
   if (req.method !== "POST") return jsonResponse({ error: { code: "METHOD_NOT_ALLOWED" } }, 405);
@@ -259,6 +352,12 @@ export default async function handler(req: Request): Promise<Response> {
     }
     if (body.action === "pqrs_priority_brief") {
       return await pqrsPriorityBrief(client, body.organization_id);
+    }
+    if (body.action === "maintenance_priority_brief") {
+      return await maintenancePriorityBrief(client, body.organization_id);
+    }
+    if (body.action === "assembly_minutes_summary") {
+      return await assemblyMinutesSummary(client, body.organization_id);
     }
     return jsonResponse({ error: { code: "VALIDATION_ERROR", message: "Acción no soportada." } }, 400);
   } catch (err) {

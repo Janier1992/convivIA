@@ -12,6 +12,8 @@ import { DailyBriefCard } from "./home/DailyBriefCard";
 import { RecentPqrsCard } from "./home/RecentPqrsCard";
 import { WeeklyPortfolioBriefCard } from "./home/WeeklyPortfolioBriefCard";
 import { PqrsPriorityBriefCard } from "./home/PqrsPriorityBriefCard";
+import { MaintenancePriorityBriefCard } from "./home/MaintenancePriorityBriefCard";
+import { AssemblyMinutesSummaryCard } from "./home/AssemblyMinutesSummaryCard";
 
 function variation(current: number, previous: number): string | undefined {
   if (!previous) return undefined;
@@ -126,6 +128,13 @@ export function DashboardHome() {
         <div className="grid gap-4 lg:grid-cols-2">
           {can("finance.read") ? <WeeklyPortfolioBriefCard /> : null}
           {can("pqrs.read") ? <PqrsPriorityBriefCard /> : null}
+        </div>
+      )}
+
+      {(can("maintenance.read") || can("assembly.read")) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {can("maintenance.read") ? <MaintenancePriorityBriefCard /> : null}
+          {can("assembly.read") ? <AssemblyMinutesSummaryCard /> : null}
         </div>
       )}
 
