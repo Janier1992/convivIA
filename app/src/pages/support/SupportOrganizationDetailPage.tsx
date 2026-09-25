@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import { insforge } from "@/lib/insforgeClient";
 import { errorMessage, rpc } from "@/lib/rpc";
 import { formatDateTime, formatNumber } from "@/lib/format";
@@ -112,6 +113,10 @@ export function SupportOrganizationDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Link to="/soporte" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" aria-hidden /> Copropiedades
+      </Link>
+
       <PageHeader
         title={org.name}
         description={`${PROPERTY_TYPE_LABELS[org.property_type] ?? org.property_type} · creada ${formatDateTime(org.created_at)}`}
