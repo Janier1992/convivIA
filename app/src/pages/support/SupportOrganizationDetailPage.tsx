@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/PageHeader";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import type { ModuleKey, Organization } from "@/types/domain";
+import { SupportAgentObservabilityCard } from "./SupportAgentObservabilityCard";
 
 interface SupportOverview {
   units: number;
@@ -226,6 +227,8 @@ export function SupportOrganizationDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {orgId && <SupportAgentObservabilityCard orgId={orgId} />}
 
       <Card>
         <CardHeader><CardTitle>Notas internas de soporte</CardTitle></CardHeader>

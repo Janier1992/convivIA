@@ -15,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/PageHeader";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import type { AgentConfig } from "@/types/domain";
-import { AgentObservabilityCard } from "./AgentObservabilityCard";
 import { AgentRulesCard } from "./AgentRulesCard";
 import { AssistantPreviewChat } from "./AssistantPreviewChat";
 
@@ -170,8 +169,6 @@ export function AssistantPage() {
           </Card>
         </div>
       </div>
-
-      <AgentObservabilityCard />
     </div>
   );
 }

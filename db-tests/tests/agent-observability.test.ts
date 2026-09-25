@@ -105,6 +105,13 @@ describe("observabilidad del asistente (get_agent_observability / get_platform_a
     expect(rowB.obs.totals.turns).toBe(2);
   });
 
+  it("soporte consulta la observabilidad de CUALQUIER copropiedad, no solo la suya (no es miembro de ninguna)", async () => {
+    const [rowA] = await t.as<{ obs: OrgObservability }>(supportId, "select public.get_agent_observability($1, 30) as obs", [orgA.orgId]);
+    expect(rowA.obs.totals.turns).toBe(10);
+    const [rowB] = await t.as<{ obs: OrgObservability }>(supportId, "select public.get_agent_observability($1, 30) as obs", [orgB.orgId]);
+    expect(rowB.obs.totals.turns).toBe(2);
+  });
+
   it("un residente no puede ver la observabilidad de otra copropiedad", async () => {
     await expect(t.as(orgB.ownerId, "select public.get_agent_observability($1, 30)", [orgA.orgId])).rejects.toThrow(/FORBIDDEN/);
   });
