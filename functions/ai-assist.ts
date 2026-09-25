@@ -31,7 +31,7 @@ function jsonResponse(body: unknown, status: number) {
 
 const MAX_NOTES_LENGTH = 2000;
 const GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
-const DEFAULT_MODEL = "gemini-2.0-flash";
+const DEFAULT_MODEL = "gemini-3.8-flash";
 
 function aiClient() {
   const apiKey = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("OPENAI_API_KEY");

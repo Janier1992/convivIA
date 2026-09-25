@@ -329,7 +329,7 @@ por defecto, vía la capa de compatibilidad de Gemini con la API de OpenAI — s
 
 1. Generá una API key gratis en [Google AI Studio](https://aistudio.google.com/apikey).
 2. Cargala como secreto de InsForge: `npx @insforge/cli secrets add GEMINI_API_KEY <tu-api-key>`.
-3. Listo: no hace falta ninguna otra variable. El modelo por defecto es `gemini-2.0-flash`.
+3. Listo: no hace falta ninguna otra variable. El modelo por defecto es `gemini-3.8-flash`.
 
 Si más adelante preferís OpenAI (u otro proveedor compatible) para `ai-assist`, no hace falta tocar código: cargá
 `OPENAI_API_KEY` (y opcionalmente `OPENAI_BASE_URL` / `OPENAI_MODEL`) como secretos de InsForge y el código los usa
