@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { LifeBuoy, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -16,10 +16,12 @@ export function SupportLayout() {
   return (
     <div className="min-h-dvh bg-background">
       <header className="flex h-14 items-center gap-3 border-b border-border bg-card px-4 sm:px-6">
-        <div className="brand-gradient flex h-8 w-8 items-center justify-center rounded-lg text-white">
-          <LifeBuoy className="h-4 w-4" />
-        </div>
-        <span className="font-semibold">ConvivIA — Soporte</span>
+        <Link to="/soporte" className="flex items-center gap-3">
+          <div className="brand-gradient flex h-8 w-8 items-center justify-center rounded-lg text-white">
+            <LifeBuoy className="h-4 w-4" />
+          </div>
+          <span className="font-semibold">ConvivIA — Soporte</span>
+        </Link>
         <span className="ml-auto truncate text-xs text-muted-foreground">{user?.email}</span>
         <ThemeToggle />
         <button
