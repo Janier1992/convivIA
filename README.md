@@ -71,6 +71,23 @@ del residente), registro real de ingreso/salida en la garita, paquetes recibidos
 contacto principal de la unidad cuando hay canal conectado, y novedades generales de turno. Interfaz de una
 sola pantalla, pensada para registrarse en segundos en la garita.
 
+### Asamblea y gobierno
+Convocatoria, orden del día, poderes, quórum y votación (Ley 675 de 2001), con acta como documento versionado.
+- El **quórum se calcula siempre en la base de datos sobre los coeficientes reales de las unidades**, nunca a mano:
+  `get_assembly_quorum()` compara el coeficiente presente contra el requerido en primera y segunda convocatoria.
+- **Poderes**: un propietario le otorga poder a un apoderado para una unidad y asamblea concretas; el límite de
+  unidades que puede representar un mismo apoderado es **configurable por copropiedad**
+  (`property_profiles.max_proxies_per_attorney`), nunca una regla fija en el código.
+- **Asistencia por unidad**: el coeficiente queda congelado al momento del registro, así una corrección posterior al
+  coeficiente de una unidad no reescribe un quórum ya vivido.
+- **Votación** por punto del orden del día, con el coeficiente tomado del registro de asistencia. El panel muestra
+  los números crudos (a favor / en contra / abstención, por coeficiente); **nunca certifica si una decisión quedó
+  aprobada**, porque el tipo de mayoría (simple, absoluta, calificada) depende del reglamento y del tema, no es
+  algo que el sistema deba decidir por la copropiedad.
+- El **acta final se vincula como documento versionado** (`documents`, tipo "acta de asamblea"), no como texto suelto.
+- El asistente de IA solo informa fecha, lugar y orden del día de la próxima asamblea; nunca calcula ni menciona
+  quórum ni resultados de votación.
+
 ### Comunicados
 Se entregan **como mensaje privado por el chat de cada persona, nunca como lista pública o grupo**, con ayuda
 opcional de la IA para redactarlos.
@@ -84,8 +101,8 @@ reglamento (búsqueda de texto completo en español sobre Postgres).
 - Nombre y tono propios (ej. formal, amable-tuteo), instrucciones personalizadas y reglas adicionales de la
   copropiedad — siempre después de las reglas críticas del sistema, que nunca se pueden desactivar ni contradecir.
 - Capacidades activables/desactivables una por una: consultar estado de cuenta, reportar pagos, radicar/consultar
-  PQRS, reservar zonas comunes, preautorizar visitantes y consultar paquetes, buscar en documentos, transferir a
-  una persona del equipo.
+  PQRS, reservar zonas comunes, preautorizar visitantes y consultar paquetes, informar sobre la próxima asamblea,
+  buscar en documentos, transferir a una persona del equipo.
 - **Nunca ejecuta una acción directamente**: primero la propone (validada de forma determinística contra los datos
   reales) y sólo la ejecuta si el residente la confirma explícitamente en un mensaje posterior — protege contra que
   el modelo "alucine" un pago, una reserva o un PQRS que nunca pidieron.
@@ -458,6 +475,8 @@ npm run build
       equipo, auditoría, configuración.
 - [x] Portería y visitantes: preautorizaciones, bitácora de ingreso/salida, paquetes con aviso automático al
       residente y novedades de turno, con permiso `porteria.*` propio y capacidad activable en el asistente.
+- [x] Asamblea y gobierno: convocatoria, orden del día, poderes, quórum por coeficiente, votación y acta versionada,
+      con permiso `assembly.*` propio; el sistema nunca certifica quórum ni resultado de una votación.
 - [x] PWA instalable, responsiva en mobile y desktop.
 - [x] Notificaciones push (Web Push + VAPID) al equipo cuando el asistente registra algo que requiere revisión.
 - [x] IA para administradores (resumen del día, cartera de la semana, PQRS a priorizar, redactar comunicado),
@@ -478,5 +497,8 @@ npm run build
 - **Portería sin control de acceso físico**: registra y consulta visitantes, paquetes y novedades, pero no
   integra hardware (torniquetes, biométricos, lectura automática de placas). La placa del vehículo hoy es un
   campo de texto libre, no una entidad de vehículo con historial propio.
-- **Sin asamblea, mantenimiento ni contabilidad todavía**: ver `PRPs/convivia-roadmap-ampliacion-2026-09-24.md`
+- **Asamblea sin apps de firma electrónica ni streaming integrado**: el registro de poderes, asistencia y votos es
+  manual desde el panel (lo hace el equipo o el residente presente); no hay firma digital de poderes ni transmisión
+  en vivo integrada.
+- **Sin mantenimiento de activos ni contabilidad todavía**: ver `PRPs/convivia-roadmap-ampliacion-2026-09-24.md`
   para la priorización completa de lo que falta frente al system prompt original del proyecto.

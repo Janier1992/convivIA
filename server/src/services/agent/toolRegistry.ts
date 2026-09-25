@@ -2,6 +2,7 @@ import type OpenAI from "openai";
 import { ErrorCodes } from "../../utils/AppError.js";
 import type { AgentConfig } from "../../types/domain.js";
 import { AREA_TOOLS } from "./tools/areaTools.js";
+import { ASSEMBLY_TOOLS } from "./tools/assemblyTools.js";
 import { CONVERSATION_TOOLS } from "./tools/conversationTools.js";
 import { FINANCE_TOOLS } from "./tools/financeTools.js";
 import { INFO_TOOLS } from "./tools/infoTools.js";
@@ -10,7 +11,7 @@ import { PQRS_TOOLS } from "./tools/pqrsTools.js";
 import { fail, type Capability, type ToolContext, type ToolDefinition, type ToolResult } from "./toolTypes.js";
 
 export const ALL_TOOLS: ToolDefinition[] = [
-  ...INFO_TOOLS, ...FINANCE_TOOLS, ...PQRS_TOOLS, ...AREA_TOOLS, ...PORTERIA_TOOLS, ...CONVERSATION_TOOLS
+  ...INFO_TOOLS, ...FINANCE_TOOLS, ...PQRS_TOOLS, ...AREA_TOOLS, ...PORTERIA_TOOLS, ...ASSEMBLY_TOOLS, ...CONVERSATION_TOOLS
 ];
 
 const CAPABILITY_FLAGS: Record<Exclude<Capability, "core">, keyof AgentConfig> = {
@@ -20,7 +21,8 @@ const CAPABILITY_FLAGS: Record<Exclude<Capability, "core">, keyof AgentConfig> =
   reservations: "reservations_enabled",
   documents: "documents_enabled",
   handoff: "handoff_enabled",
-  visitors: "visitors_enabled"
+  visitors: "visitors_enabled",
+  assembly: "assembly_enabled"
 };
 
 export function isCapabilityEnabled(agent: AgentConfig, capability: Capability): boolean {

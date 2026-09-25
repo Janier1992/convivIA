@@ -29,6 +29,11 @@ const CAPABILITY_FIELDS: { key: keyof AgentConfig; label: string; hint: string }
     label: "Preautorizar visitantes y consultar paquetes",
     hint: "El residente avisa una visita esperada desde el chat y consulta sus paquetes en portería."
   },
+  {
+    key: "assembly_enabled",
+    label: "Informar sobre la próxima asamblea",
+    hint: "Fecha, lugar y orden del día. Nunca certifica quórum ni resultados de votación."
+  },
   { key: "handoff_enabled", label: "Transferir a una persona", hint: "El residente puede pedir hablar con el equipo." }
 ];
 
@@ -68,6 +73,7 @@ export function AssistantPage() {
             reservations_enabled: draft.reservations_enabled,
             documents_enabled: draft.documents_enabled,
             visitors_enabled: draft.visitors_enabled,
+            assembly_enabled: draft.assembly_enabled,
             handoff_enabled: draft.handoff_enabled
           })
           .eq("id", draft.id)

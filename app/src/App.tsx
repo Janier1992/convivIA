@@ -35,6 +35,8 @@ const BillingPage = page(() => import("@/pages/dashboard/billing/BillingPage"), 
 const PaymentsPage = page(() => import("@/pages/dashboard/payments/PaymentsPage"), "PaymentsPage");
 const UnitsPage = page(() => import("@/pages/dashboard/units/UnitsPage"), "UnitsPage");
 const ResidentsPage = page(() => import("@/pages/dashboard/residents/ResidentsPage"), "ResidentsPage");
+const AssemblyListPage = page(() => import("@/pages/dashboard/assembly/AssemblyListPage"), "AssemblyListPage");
+const AssemblyDetailPage = page(() => import("@/pages/dashboard/assembly/AssemblyDetailPage"), "AssemblyDetailPage");
 const DocumentsPage = page(() => import("@/pages/dashboard/documents/DocumentsPage"), "DocumentsPage");
 const AssistantPage = page(() => import("@/pages/dashboard/assistant/AssistantPage"), "AssistantPage");
 const IntegrationsPage = page(() => import("@/pages/dashboard/IntegrationsPage"), "IntegrationsPage");
@@ -101,6 +103,10 @@ export default function App() {
                             </Route>
                             <Route element={<RequirePermission permission="residents.read" />}>
                               <Route path="residents" element={<ResidentsPage />} />
+                            </Route>
+                            <Route element={<RequirePermission permission="assembly.read" />}>
+                              <Route path="assembly" element={<AssemblyListPage />} />
+                              <Route path="assembly/:id" element={<AssemblyDetailPage />} />
                             </Route>
                             <Route element={<RequirePermission permission="documents.read" />}>
                               <Route path="documents" element={<DocumentsPage />} />

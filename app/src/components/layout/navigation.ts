@@ -4,6 +4,7 @@ import {
   CalendarDays,
   ClipboardList,
   FileText,
+  Gavel,
   History,
   Inbox,
   LayoutDashboard,
@@ -77,6 +78,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: "/dashboard/units", label: "Unidades", icon: Building2 },
       { to: "/dashboard/residents", label: "Residentes", icon: Users, permission: "residents.read" },
+      { to: "/dashboard/assembly", label: "Asamblea", icon: Gavel, permission: "assembly.read" },
       { to: "/dashboard/documents", label: "Documentos", icon: FileText, permission: "documents.read" }
     ]
   },
