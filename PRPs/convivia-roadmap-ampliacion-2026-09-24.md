@@ -50,6 +50,18 @@ que la priorización en sí es determinista, no depende del modelo). Ambas queda
 junto a "Resumen del día". Proveedor: Gemini (`GEMINI_API_KEY`, gratis en Google AI Studio), intercambiable por
 OpenAI u otro compatible con solo cambiar variables de entorno, sin tocar código — ver README.
 
+**Actualización — las 7 de 7 ya están construidas.** Las 2 que faltaban (resumen de la última acta,
+mantenimientos pendientes/vencidos) estaban bloqueadas hasta que existieron P1 (asamblea) y P2 (mantenimiento);
+con esas dos ya construidas, se agregaron sin tablas nuevas: `get_maintenance_priority_brief()` (cronogramas
+vencidos/próximos + órdenes esperando aprobación o validación + urgentes abiertas) y
+`get_latest_assembly_minutes()` (texto de la última acta con acta cargada, reensamblado desde
+`document_chunks` si el documento fue un archivo subido en vez de texto pegado — nunca toca quórum ni
+resultados de votación, solo el texto del acta). Mismo patrón: función determinista + `ai-assist` la redacta.
+La sección 10 del prompt maestro queda completa. Confirmado contra el backend real que ambas llegan
+correctamente a Gemini; se observó un 503 "modelo con alta demanda" transitorio del lado de Gemini durante la
+prueba (le pasó también a `daily_brief`, ya existente) — es una característica del nivel gratuito, no una
+regresión introducida acá.
+
 También noté, revisando el núcleo de copropiedad (sección 4.1), que **vehículos y mascotas** no son
 entidades propias: la placa del vehículo hoy vive como texto libre dentro de portería (autorizaciones y
 bitácora), sin un registro por unidad con historial (marca, color, más de un vehículo por unidad) ni mascotas
