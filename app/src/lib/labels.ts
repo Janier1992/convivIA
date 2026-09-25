@@ -7,6 +7,7 @@ import type {
   AudienceType,
   DocumentType,
   GateNoteCategory,
+  ModuleKey,
   OrganizationRole,
   PackageStatus,
   PaymentMethod,
@@ -262,6 +263,44 @@ export const WORK_ORDER_EVENT_LABELS: Record<string, string> = {
   closed: "Cerrada",
   cancelled: "Cancelada"
 };
+
+/**
+ * Módulos comerciales que soporte puede habilitar/deshabilitar por
+ * copropiedad (independiente del rol dentro de ella). Agrupados igual
+ * que el menú lateral para que el checklist de soporte se lea igual.
+ * "Inicio" no está acá: siempre visible, no es un módulo contratable.
+ */
+export const MODULE_GROUPS: { title: string; modules: { key: ModuleKey; label: string }[] }[] = [
+  { title: "General", modules: [
+    { key: "portfolio", label: "Portafolio" },
+    { key: "inbox", label: "Conversaciones" }
+  ] },
+  { title: "Operación", modules: [
+    { key: "pqrs", label: "PQRS" },
+    { key: "reservations", label: "Reservas y zonas comunes" },
+    { key: "porteria", label: "Portería" },
+    { key: "maintenance", label: "Mantenimiento" },
+    { key: "communications", label: "Comunicados" }
+  ] },
+  { title: "Finanzas", modules: [
+    { key: "finance", label: "Cartera y pagos" }
+  ] },
+  { title: "Copropiedad", modules: [
+    { key: "units", label: "Unidades" },
+    { key: "residents", label: "Residentes" },
+    { key: "assembly", label: "Asamblea" },
+    { key: "documents", label: "Documentos" }
+  ] },
+  { title: "Configuración", modules: [
+    { key: "agent", label: "Asistente IA" },
+    { key: "integrations", label: "Canales" },
+    { key: "team", label: "Equipo" },
+    { key: "audit", label: "Auditoría" },
+    { key: "settings", label: "Configuración" }
+  ] }
+];
+
+export const ALL_MODULE_KEYS: ModuleKey[] = MODULE_GROUPS.flatMap((g) => g.modules.map((m) => m.key));
 
 export function labelOf<T extends string>(map: Record<T, string>, value: T | null | undefined): string {
   return value ? map[value] ?? value : "—";

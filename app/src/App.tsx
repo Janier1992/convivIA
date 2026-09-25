@@ -81,52 +81,58 @@ export default function App() {
                         <Route element={<RequireOrganization />}>
                           <Route path="/dashboard" element={<DashboardLayout />}>
                             <Route index element={<DashboardHome />} />
-                            <Route path="portfolio" element={<PortfolioPage />} />
-                            <Route path="units" element={<UnitsPage />} />
-                            <Route path="team" element={<TeamPage />} />
-                            <Route element={<RequirePermission permission="inbox.read" />}>
+                            <Route element={<RequirePermission module="portfolio" />}>
+                              <Route path="portfolio" element={<PortfolioPage />} />
+                            </Route>
+                            <Route element={<RequirePermission module="units" />}>
+                              <Route path="units" element={<UnitsPage />} />
+                            </Route>
+                            <Route element={<RequirePermission module="team" />}>
+                              <Route path="team" element={<TeamPage />} />
+                            </Route>
+                            <Route element={<RequirePermission permission="inbox.read" module="inbox" />}>
                               <Route path="inbox" element={<InboxPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="pqrs.read" />}>
+                            <Route element={<RequirePermission permission="pqrs.read" module="pqrs" />}>
                               <Route path="pqrs" element={<PqrsPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="reservations.read" />}>
+                            <Route element={<RequirePermission permission="reservations.read" module="reservations" />}>
                               <Route path="reservations" element={<ReservationsPage />} />
                               <Route path="common-areas" element={<CommonAreasPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="porteria.read" />}>
+                            <Route element={<RequirePermission permission="porteria.read" module="porteria" />}>
                               <Route path="gatehouse" element={<GatehousePage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="maintenance.read" />}>
+                            <Route element={<RequirePermission permission="maintenance.read" module="maintenance" />}>
                               <Route path="maintenance" element={<MaintenancePage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="communications.read" />}>
+                            <Route element={<RequirePermission permission="communications.read" module="communications" />}>
                               <Route path="announcements" element={<AnnouncementsPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="finance.read" />}>
+                            <Route element={<RequirePermission permission="finance.read" module="finance" />}>
                               <Route path="billing" element={<BillingPage />} />
                               <Route path="payments" element={<PaymentsPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="residents.read" />}>
+                            <Route element={<RequirePermission permission="residents.read" module="residents" />}>
                               <Route path="residents" element={<ResidentsPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="assembly.read" />}>
+                            <Route element={<RequirePermission permission="assembly.read" module="assembly" />}>
                               <Route path="assembly" element={<AssemblyListPage />} />
                               <Route path="assembly/:id" element={<AssemblyDetailPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="documents.read" />}>
+                            <Route element={<RequirePermission permission="documents.read" module="documents" />}>
                               <Route path="documents" element={<DocumentsPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="agent.manage" />}>
+                            <Route element={<RequirePermission permission="agent.manage" module="agent" />}>
                               <Route path="assistant" element={<AssistantPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="integrations.manage" />}>
+                            <Route element={<RequirePermission permission="integrations.manage" module="integrations" />}>
                               <Route path="integrations" element={<IntegrationsPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="audit.read" />}>
+                            <Route element={<RequirePermission permission="audit.read" module="audit" />}>
                               <Route path="audit" element={<AuditPage />} />
                             </Route>
-                            <Route element={<RequirePermission permission="settings.manage" />}>
+                            <Route element={<RequirePermission permission="settings.manage" module="settings" />}>
                               <Route path="settings" element={<SettingsPage />} />
                             </Route>
                           </Route>

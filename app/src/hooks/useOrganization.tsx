@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { insforge } from "@/lib/insforgeClient";
 import { useAuth } from "./useAuth";
-import type { OrganizationMembership, OrganizationRole, Permission } from "@/types/domain";
+import type { ModuleKey, OrganizationMembership, OrganizationRole, Permission } from "@/types/domain";
 
 const STORAGE_KEY = "convivia:current-org";
 
@@ -30,6 +30,9 @@ interface OrganizationContextValue {
   permissions: Set<Permission>;
   /** El panel oculta lo que el rol no puede hacer; la base de datos lo impide igual (RLS). */
   can: (permission: Permission) => boolean;
+  /** Módulos que la copropiedad tiene contratados (lo decide soporte, no el rol). */
+  enabledModules: Set<ModuleKey>;
+  hasModule: (module: ModuleKey) => boolean;
   isLoading: boolean;
   setCurrentOrganizationId: (id: string) => void;
   refetch: () => void;
@@ -76,6 +79,8 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const permissions = useMemo(() => new Set(permissionList), [permissionList]);
   const can = useCallback((permission: Permission) => permissions.has(permission), [permissions]);
   const membership = memberships.find((m) => m.organization_id === currentOrganizationId) ?? null;
+  const enabledModules = useMemo(() => new Set(membership?.organizations.enabled_modules ?? []), [membership]);
+  const hasModule = useCallback((module: ModuleKey) => enabledModules.has(module), [enabledModules]);
 
   const value: OrganizationContextValue = {
     memberships,
@@ -84,6 +89,8 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     currentRole: membership?.role ?? null,
     permissions,
     can,
+    enabledModules,
+    hasModule,
     isLoading: isLoading || (!!membership && permissionsLoading),
     setCurrentOrganizationId: (id) => {
       storeOrg(id);

@@ -9,6 +9,11 @@ export type Permission =
   | "settings.manage" | "audit.read" | "data.export" | "porteria.read" | "porteria.write"
   | "assembly.read" | "assembly.write" | "maintenance.read" | "maintenance.write" | "maintenance.approve";
 
+export type ModuleKey =
+  | "portfolio" | "inbox" | "pqrs" | "reservations" | "porteria" | "maintenance" | "communications"
+  | "finance" | "units" | "residents" | "assembly" | "documents" | "agent" | "integrations" | "team"
+  | "audit" | "settings";
+
 export interface Organization {
   id: string;
   name: string;
@@ -17,6 +22,7 @@ export interface Organization {
   status: "active" | "suspended" | "cancelled";
   timezone: string;
   subscription_expires_at: string | null;
+  enabled_modules: ModuleKey[];
   created_at: string;
 }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -6,14 +6,14 @@ import { ArrowLeft } from "lucide-react";
 import { insforge } from "@/lib/insforgeClient";
 import { errorMessage, rpc } from "@/lib/rpc";
 import { formatDateTime, formatNumber } from "@/lib/format";
-import { PROPERTY_TYPE_LABELS } from "@/lib/labels";
+import { ALL_MODULE_KEYS, MODULE_GROUPS, PROPERTY_TYPE_LABELS } from "@/lib/labels";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/PageHeader";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import type { Organization } from "@/types/domain";
+import type { ModuleKey, Organization } from "@/types/domain";
 
 interface SupportOverview {
   units: number;
@@ -38,6 +38,8 @@ export function SupportOrganizationDetailPage() {
   const [note, setNote] = useState("");
   const [confirmSuspend, setConfirmSuspend] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [selectedModules, setSelectedModules] = useState<Set<ModuleKey>>(new Set());
+  const [savingModules, setSavingModules] = useState(false);
 
   const { data: org } = useQuery({
     queryKey: ["support-org", orgId],
@@ -74,6 +76,41 @@ export function SupportOrganizationDetailPage() {
       return data as SupportNote[];
     }
   });
+
+  useEffect(() => {
+    if (org) setSelectedModules(new Set(org.enabled_modules));
+  }, [org]);
+
+  const modulesDirty =
+    !!org &&
+    (selectedModules.size !== org.enabled_modules.length || org.enabled_modules.some((m) => !selectedModules.has(m)));
+
+  function toggleModule(key: ModuleKey) {
+    setSelectedModules((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  async function saveModules() {
+    if (!org) return;
+    setSavingModules(true);
+    try {
+      const { error } = await insforge.database
+        .from("organizations")
+        .update({ enabled_modules: Array.from(selectedModules) })
+        .eq("id", org.id);
+      if (error) throw error;
+      toast.success("Módulos actualizados.");
+      await queryClient.invalidateQueries({ queryKey: ["support-org", orgId] });
+    } catch (err) {
+      toast.error(errorMessage(err));
+    } finally {
+      setSavingModules(false);
+    }
+  }
 
   async function toggleAgent() {
     if (!agent) return;
@@ -138,6 +175,44 @@ export function SupportOrganizationDetailPage() {
         <Card className="p-4"><p className="text-xs text-muted-foreground">Envíos fallidos (7d)</p><p className="text-xl font-bold">{formatNumber(overview?.outbound_failed_7d)}</p></Card>
         <Card className="p-4"><p className="text-xs text-muted-foreground">Última actividad</p><p className="text-sm font-medium">{overview?.last_activity_at ? formatDateTime(overview.last_activity_at) : "—"}</p></Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Módulos habilitados</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Qué le contrataron a esta copropiedad: lo que quede sin marcar desaparece de su menú, sin importar el
+            rol de quien entre. Ningún miembro de la copropiedad puede cambiar esto — solo soporte.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {MODULE_GROUPS.map((group) => (
+            <div key={group.title}>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{group.title}</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {group.modules.map((m) => (
+                  <label key={m.key} className="flex items-center gap-2 text-sm">
+                    <Switch checked={selectedModules.has(m.key)} onCheckedChange={() => toggleModule(m.key)} />
+                    {m.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="flex items-center justify-between border-t border-border pt-3">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setSelectedModules(new Set(ALL_MODULE_KEYS))}>
+                Marcar todos
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setSelectedModules(new Set())}>
+                Desmarcar todos
+              </Button>
+            </div>
+            <Button onClick={saveModules} disabled={!modulesDirty || savingModules}>
+              {savingModules ? "Guardando..." : "Guardar módulos"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {agent && (
         <Card>

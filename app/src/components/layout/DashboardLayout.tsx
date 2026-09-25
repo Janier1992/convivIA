@@ -83,7 +83,7 @@ function NavEntry({ item, count }: { item: NavItem; count: number }) {
 
 export function DashboardLayout() {
   const { user, signOut } = useAuth();
-  const { memberships, currentOrganizationId, currentOrganization, currentRole, setCurrentOrganizationId, can } = useOrganization();
+  const { memberships, currentOrganizationId, currentOrganization, currentRole, setCurrentOrganizationId, can, hasModule } = useOrganization();
   const { data: profile } = usePropertyProfile();
   const { data: dashboard } = useAdminDashboard();
   const { isSupportStaff } = useSupportStaff();
@@ -105,7 +105,9 @@ export function DashboardLayout() {
 
   const sections = NAV_SECTIONS.map((section) => ({
     ...section,
-    items: section.items.filter((item) => !item.permission || can(item.permission))
+    items: section.items.filter(
+      (item) => (!item.permission || can(item.permission)) && (!item.module || hasModule(item.module))
+    )
   })).filter((section) => section.items.length > 0);
 
   function sectionBadgeTotal(items: NavItem[], dashboard: AdminDashboard | undefined) {
