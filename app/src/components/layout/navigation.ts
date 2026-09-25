@@ -1,5 +1,6 @@
 import {
   Bot,
+  Briefcase,
   Building2,
   CalendarDays,
   ClipboardList,
@@ -42,6 +43,7 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "General",
     items: [
       { to: "/dashboard", label: "Inicio", icon: LayoutDashboard, end: true },
+      { to: "/dashboard/portfolio", label: "Portafolio", icon: Briefcase },
       { to: "/dashboard/inbox", label: "Conversaciones", icon: Inbox, permission: "inbox.read", badge: (d) => d.conversations.handoff }
     ]
   },

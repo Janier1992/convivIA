@@ -685,6 +685,19 @@ export interface WorkOrder {
   pqrs_tickets?: { radicado: string } | null;
 }
 
+export interface PortfolioOrgSummary {
+  organization_id: string;
+  organization_name: string;
+  role: OrganizationRole;
+  units_total: number;
+  overdue_total: number | null;
+  units_overdue: number | null;
+  pqrs_open: number | null;
+  pqrs_overdue: number | null;
+  work_orders_open: number | null;
+  work_orders_pending_approval: number | null;
+}
+
 export interface WorkOrderEvent {
   id: string;
   event_type: WorkOrderEventType;

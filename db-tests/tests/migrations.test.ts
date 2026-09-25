@@ -14,7 +14,7 @@ const AUTHENTICATED_ALLOWLIST = [
   "current_user_email", "decide_area_reservation", "deliver_package", "diagnose_work_order", "enqueue_preview_message",
   "generate_interest_charges", "generate_monthly_charges", "get_admin_dashboard", "get_announcement_delivery",
   "get_area_slots", "get_assembly_attendees", "get_assembly_proxies", "get_assembly_quorum", "get_channel_status", "get_my_permissions", "get_portfolio",
-  "get_portfolio_weekly_changes", "get_support_overview", "get_team_members", "get_unit_active_people",
+  "get_portfolio_overview", "get_portfolio_weekly_changes", "get_support_overview", "get_team_members", "get_unit_active_people",
   "get_unit_statement", "get_user_organization_ids", "get_vote_results", "has_org_permission",
   "has_permission_for_storage_key", "import_units_residents", "is_org_member", "is_org_owner", "is_support_admin",
   "is_support_staff", "mark_maintenance_schedule_done", "normalize_phone", "org_today", "preview_interest_charges", "preview_monthly_charges",

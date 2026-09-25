@@ -25,6 +25,7 @@ const RegisterPage = page(() => import("@/pages/auth/RegisterPage"), "RegisterPa
 const ForgotPasswordPage = page(() => import("@/pages/auth/ForgotPasswordPage"), "ForgotPasswordPage");
 const OnboardingWizard = page(() => import("@/pages/onboarding/OnboardingWizard"), "OnboardingWizard");
 const DashboardHome = page(() => import("@/pages/dashboard/DashboardHome"), "DashboardHome");
+const PortfolioPage = page(() => import("@/pages/dashboard/PortfolioPage"), "PortfolioPage");
 const InboxPage = page(() => import("@/pages/dashboard/inbox/InboxPage"), "InboxPage");
 const PqrsPage = page(() => import("@/pages/dashboard/pqrs/PqrsPage"), "PqrsPage");
 const ReservationsPage = page(() => import("@/pages/dashboard/reservations/ReservationsPage"), "ReservationsPage");
@@ -80,6 +81,7 @@ export default function App() {
                         <Route element={<RequireOrganization />}>
                           <Route path="/dashboard" element={<DashboardLayout />}>
                             <Route index element={<DashboardHome />} />
+                            <Route path="portfolio" element={<PortfolioPage />} />
                             <Route path="units" element={<UnitsPage />} />
                             <Route path="team" element={<TeamPage />} />
                             <Route element={<RequirePermission permission="inbox.read" />}>

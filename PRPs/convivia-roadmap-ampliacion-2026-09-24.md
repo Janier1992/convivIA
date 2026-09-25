@@ -96,6 +96,15 @@ Flujo: reporte → diagnóstico → aprobación → asignación → ejecución �
 como lo describe el prompt). El reporte inicial puede salir de una PQRS ya existente (categoría
 "Mantenimiento"): no duplicar la entrada, solo agregar el seguimiento estructurado que hoy no tiene.
 
+**Construido**: `assets`, `vendors`, `maintenance_schedules`, `work_orders` y `work_orders_events` (historial
+append-only, mismo patrón que `pqrs_events`), con las 15 RPCs del flujo completo. Dos permisos, no uno:
+`maintenance.write` para la operación (reportar/diagnosticar/asignar/ejecutar/evidencia) y
+`maintenance.approve` como checkpoint de gobierno separado (aprobar el gasto diagnosticado y validar el
+cierre) — solo owner, admin y consejo lo tienen, igual que en asamblea. `create_work_order` acepta un
+`pqrs_ticket_id` opcional (índice único parcial evita enlazar dos órdenes al mismo PQRS) sin acoplar el
+estado de los dos módulos. Nueva pantalla `/dashboard/maintenance` con pestañas (Órdenes, Activos,
+Proveedores, Preventivo) y botón "Crear orden de trabajo" desde el detalle de una PQRS.
+
 ## P3. Empresa administradora: panel consolidado multi-copropiedad
 
 **Por qué:** hoy una persona que administra varias copropiedades ya puede pertenecer a varias organizaciones
@@ -103,10 +112,13 @@ como lo describe el prompt). El reporte inicial puede salir de una PQRS ya exist
 copropiedades a la vez. Para vender a empresas administradoras (canal de ventas grande en este nicho, no solo
 a conjuntos individuales) esto pesa tanto como cualquier módulo nuevo.
 
-Propuesta de menor esfuerzo que crear una entidad `management_companies` completa: una vista
-`/dashboard/portfolio` que, para alguien con membresía en más de una organización, agregue los indicadores
-clave (cartera vencida, PQRS abiertos, mantenimientos pendientes) de todas sus copropiedades en una sola
-pantalla, con RLS ya resuelto porque reutiliza `get_user_organization_ids()`.
+**Construido**: sin entidad `management_companies` ni tablas nuevas, tal como proponía este documento. La RPC
+`get_portfolio_overview()` (sin parámetros: se autoescopea a `auth.uid()`) agrega cartera vencida — reutilizando
+`ledger_open_items()`, nunca reinventando la mora —, PQRS abiertas/vencidas y mantenimiento abierto de cada
+copropiedad donde el usuario es miembro, con el rol de esa copropiedad puntual. Cada cifra se oculta (`null`)
+si el rol no tiene el permiso de lectura correspondiente ahí — el rol puede variar de una copropiedad a otra.
+Nueva pantalla `/dashboard/portfolio` (con tarjetas resumen + tabla); tocar una fila cambia de copropiedad
+activa y entra a su panel completo.
 
 ## P4. Contabilidad y presupuesto (sección 4.3)
 
