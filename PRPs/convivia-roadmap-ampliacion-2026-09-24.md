@@ -143,6 +143,25 @@ corra antes de cada release, como pide el prompt explícitamente. Es la brecha d
 inmediato pero la de mayor riesgo si el asistente cambia de proveedor de modelo o de prompt sin red de
 seguridad. Se puede construir de forma incremental sobre `ai_traces`, que ya registra cada turno.
 
+**Construido**: `get_agent_observability()` (por copropiedad, `agent.manage`) y
+`get_platform_agent_observability()` (toda la plataforma, solo soporte, con desglose por modelo — la señal
+directa de un cambio de proveedor) calculan tasa de escalamiento, groundedness y tasa de error sobre
+`ai_traces`, sin tocar su diseño de privacidad (nunca guarda contenido de mensajes). Decisión deliberada: la
+"tasa de alucinación" en vivo NO se implementó — exigiría guardar contenido de mensajes o muestrear con un
+juez-IA en producción, ninguno de los dos justificado todavía; esa métrica pertenece a la suite de evaluación
+offline, contra una respuesta correcta conocida, no al tráfico real. Nueva tarjeta "Calidad y observabilidad"
+en `/dashboard/assistant` y página `/soporte/observabilidad`.
+
+La suite de evaluación (`server/tests/agentSecurity.test.ts`) no prueba jailbreak/extracción de prompt por
+texto (no es verificable por código; requiere red-teaming humano periódico, documentado como pendiente, no
+fingido con un test). Sí prueba, contra el runtime real: que ninguna herramienta expone un identificador de
+copropiedad/tenant como argumento del modelo, que las consultas con datos privados usan siempre la
+organización real del contexto (no una fija), que las herramientas que exigen residente verificado se
+protegen a sí mismas aunque se las llame directo, y que confirmar o descartar una acción pendiente siempre
+filtra por la conversación real, nunca solo por el id adivinado. Auditoría manual previa de cada archivo de
+herramientas del asistente: no se encontró ninguna fuga real, la arquitectura ya la evitaba — esta suite fija
+esa garantía contra una regresión futura.
+
 ## Lo que se decidió NO perseguir por ahora
 
 - **Apps nativas iOS/Android.** La PWA ya cubre instalación en celular sin fricción; el costo de dos code
