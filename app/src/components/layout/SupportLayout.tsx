@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router-dom";
-import { LifeBuoy, LogOut } from "lucide-react";
+import { Activity, LifeBuoy, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -21,6 +21,9 @@ export function SupportLayout() {
             <LifeBuoy className="h-4 w-4" />
           </div>
           <span className="font-semibold">ConvivIA — Soporte</span>
+        </Link>
+        <Link to="/soporte/observabilidad" className="ml-4 flex items-center gap-1.5 text-sm text-foreground/80 hover:text-foreground">
+          <Activity className="h-4 w-4" aria-hidden /> Observabilidad
         </Link>
         <span className="ml-auto truncate text-xs text-muted-foreground">{user?.email}</span>
         <ThemeToggle />

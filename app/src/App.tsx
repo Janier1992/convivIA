@@ -46,6 +46,7 @@ const TeamPage = page(() => import("@/pages/dashboard/TeamPage"), "TeamPage");
 const AuditPage = page(() => import("@/pages/dashboard/AuditPage"), "AuditPage");
 const SettingsPage = page(() => import("@/pages/dashboard/settings/SettingsPage"), "SettingsPage");
 const SupportOrganizationsPage = page(() => import("@/pages/support/SupportOrganizationsPage"), "SupportOrganizationsPage");
+const SupportObservabilityPage = page(() => import("@/pages/support/SupportObservabilityPage"), "SupportObservabilityPage");
 const SupportOrganizationDetailPage = page(
   () => import("@/pages/support/SupportOrganizationDetailPage"),
   "SupportOrganizationDetailPage"
@@ -75,6 +76,7 @@ export default function App() {
                           <Route path="/soporte" element={<SupportLayout />}>
                             <Route index element={<SupportOrganizationsPage />} />
                             <Route path="copropiedades/:orgId" element={<SupportOrganizationDetailPage />} />
+                            <Route path="observabilidad" element={<SupportObservabilityPage />} />
                           </Route>
                         </Route>
 
