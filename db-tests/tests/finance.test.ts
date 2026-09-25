@@ -205,4 +205,35 @@ describe("cartera y recaudo", () => {
       t.as(org.ownerId, "select public.create_manual_charge($1, $2, $3, 1000, null)", [org.orgId, unit, interest])
     ).rejects.toThrow(/CONCEPT_NOT_FOUND/);
   });
+
+  it("calcula los cambios de cartera de la última semana para la IA de administradores", async () => {
+    // Copropiedad propia y sin datos previos: los totales de la semana deben quedar exactos.
+    const weekOrg = await createOrgWithOwner(t, "Conjunto Semana");
+    const unitNew = await createUnit(t, weekOrg.orgId, "S-101");
+    const unitOld = await createUnit(t, weekOrg.orgId, "S-102");
+    const unitRecovered = await createUnit(t, weekOrg.orgId, "S-103");
+
+    await insertCharge(t, weekOrg.orgId, unitNew, 100_000, isoDate(-5)); // vence dentro de la semana, sigue sin pagar
+    await insertCharge(t, weekOrg.orgId, unitOld, 50_000, isoDate(-20)); // ya estaba vencido antes de la semana
+    await insertCharge(t, weekOrg.orgId, unitRecovered, 80_000, isoDate(-10));
+    await insertConfirmedPayment(t, weekOrg.orgId, unitRecovered, 80_000, isoDate(-2)); // paga y queda al día
+
+    const [facts] = await t.as<{ f: Record<string, unknown> }>(
+      weekOrg.ownerId, "select public.get_portfolio_weekly_changes($1) as f", [weekOrg.orgId]);
+    const f = facts.f as {
+      recaudado_7d: number;
+      facturado_7d: number;
+      cartera_vencida_total: number;
+      unidades_en_mora_total: number;
+      unidades_nuevas_en_mora: { unidad: string }[];
+      unidades_recuperadas: { unidad: string }[];
+    };
+
+    expect(Number(f.recaudado_7d)).toBe(80_000);
+    expect(Number(f.facturado_7d)).toBe(230_000);
+    expect(Number(f.cartera_vencida_total)).toBe(150_000);
+    expect(f.unidades_en_mora_total).toBe(2);
+    expect(f.unidades_nuevas_en_mora.map((u) => u.unidad)).toEqual(["S-101"]);
+    expect(f.unidades_recuperadas.map((u) => u.unidad)).toEqual(["S-103"]);
+  });
 });
